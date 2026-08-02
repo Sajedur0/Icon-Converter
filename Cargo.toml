@@ -1,0 +1,27 @@
+[package]
+name = "ico_converter"
+version = "0.1.0"
+edition = "2021"
+authors = ["Sajedur0 <sajedur0@users.noreply.github.com>"]
+
+[dependencies]
+eframe = "0.28"
+egui = "0.28"
+image = "0.25"
+rfd = "0.14"
+ico = "0.3"
+anyhow = "1.0"
+
+[profile.release]
+opt-level = "z"
+lto = true
+strip = true
+panic = "abort"
+codegen-units = 1
+
+[[bin]]
+name = "ico_converter"
+path = "src/main.rs"
+
+[target.'cfg(windows)'.build-dependencies]
+winres = "0.1"

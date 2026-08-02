@@ -1,0 +1,14 @@
+/target
+*.swp
+*.swo
+*.~*
+.DS_Store
+Thumbs.db
+
+# Editor / IDE
+.idea/
+*.iml
+.vscode/
+
+# Logs
+*.log
