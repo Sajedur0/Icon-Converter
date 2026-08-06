@@ -2,18 +2,18 @@ use crate::converter::{self, AVAILABLE_SIZES};
 use std::path::PathBuf;
 use std::collections::HashSet;
 
-const ACCENT: egui::Color32 = egui::Color32::WHITE;
-const ACCENT_HOVER: egui::Color32 = egui::Color32::from_rgb(196, 199, 204);
-const BG: egui::Color32 = egui::Color32::from_rgb(12, 12, 14);
-const CARD: egui::Color32 = egui::Color32::from_rgb(26, 28, 32);
-const CARD_HOVER: egui::Color32 = egui::Color32::from_rgb(34, 36, 41);
-const CARD_SOFT: egui::Color32 = egui::Color32::from_rgb(22, 23, 26);
-const BORDER: egui::Color32 = egui::Color32::from_rgb(60, 63, 68);
-const BORDER_HOVER: egui::Color32 = egui::Color32::from_rgb(90, 94, 100);
-const TEXT: egui::Color32 = egui::Color32::from_rgb(238, 240, 244);
-const MUTED: egui::Color32 = egui::Color32::from_rgb(150, 153, 160);
-const SUCCESS: egui::Color32 = egui::Color32::from_rgb(210, 212, 216);
-const ERROR: egui::Color32 = egui::Color32::WHITE;
+const ACCENT: egui::Color32 = egui::Color32::from_rgb(37, 99, 235);
+const ACCENT_HOVER: egui::Color32 = egui::Color32::from_rgb(29, 78, 216);
+const BG: egui::Color32 = egui::Color32::WHITE;
+const CARD: egui::Color32 = egui::Color32::from_rgb(250, 250, 250);
+const CARD_HOVER: egui::Color32 = egui::Color32::from_rgb(232, 232, 232);
+const CARD_SOFT: egui::Color32 = egui::Color32::from_rgb(240, 240, 240);
+const BORDER: egui::Color32 = egui::Color32::from_rgb(170, 170, 170);
+const BORDER_HOVER: egui::Color32 = egui::Color32::from_rgb(90, 90, 90);
+const TEXT: egui::Color32 = egui::Color32::BLACK;
+const MUTED: egui::Color32 = egui::Color32::from_rgb(96, 96, 96);
+const SUCCESS: egui::Color32 = egui::Color32::BLACK;
+const ERROR: egui::Color32 = egui::Color32::BLACK;
 
 #[allow(dead_code)]
 pub struct IcoConverterApp {
@@ -31,7 +31,7 @@ impl IcoConverterApp {
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
         let ctx = cc.egui_ctx.clone();
 
-        let mut visuals = egui::Visuals::dark();
+        let mut visuals = egui::Visuals::light();
         visuals.panel_fill = BG;
         visuals.window_fill = CARD;
         visuals.window_stroke = egui::Stroke::new(1.0_f32, BORDER);
@@ -41,7 +41,7 @@ impl IcoConverterApp {
         visuals.override_text_color = Some(TEXT);
         visuals.hyperlink_color = ACCENT;
         visuals.selection.bg_fill = ACCENT;
-        visuals.selection.stroke = egui::Stroke::new(1.0_f32, egui::Color32::from_rgb(220, 222, 226));
+        visuals.selection.stroke = egui::Stroke::new(1.0_f32, egui::Color32::from_rgb(90, 90, 90));
 
         let corner = egui::Rounding::same(8.0);
         visuals.widgets.noninteractive.rounding = corner;
@@ -50,19 +50,18 @@ impl IcoConverterApp {
         visuals.widgets.active.rounding = corner;
         visuals.widgets.noninteractive.bg_fill = CARD_SOFT;
         visuals.widgets.inactive.bg_fill = CARD;
-        visuals.widgets.hovered.bg_fill = CARD_HOVER;
-        visuals.widgets.active.bg_fill = CARD_HOVER;
-        visuals.widgets.inactive.weak_bg_fill = CARD;
-        visuals.widgets.hovered.weak_bg_fill = CARD_HOVER;
-        visuals.widgets.active.weak_bg_fill = CARD_HOVER;
+        visuals.widgets.hovered.bg_fill = ACCENT_HOVER;
+        visuals.widgets.active.bg_fill = ACCENT_HOVER;
+        visuals.widgets.hovered.weak_bg_fill = ACCENT_HOVER;
+        visuals.widgets.active.weak_bg_fill = ACCENT_HOVER;
         visuals.widgets.inactive.bg_stroke = egui::Stroke::new(1.0_f32, BORDER);
         visuals.widgets.hovered.bg_stroke = egui::Stroke::new(1.0_f32, BORDER_HOVER);
         visuals.widgets.active.bg_stroke = egui::Stroke::new(1.0_f32, ACCENT);
         ctx.set_visuals(visuals);
 
         let mut cb = egui::ColorImage::new([16, 16], egui::Color32::TRANSPARENT);
-        let c1 = egui::Color32::from_rgb(28, 29, 32);
-        let c2 = egui::Color32::from_rgb(40, 42, 46);
+        let c1 = egui::Color32::from_rgb(235, 235, 235);
+        let c2 = egui::Color32::from_rgb(215, 215, 215);
         for y in 0..16 {
             for x in 0..16 {
                 cb[(x, y)] = if (x / 8 + y / 8) % 2 == 0 { c1 } else { c2 };
@@ -249,7 +248,7 @@ impl IcoConverterApp {
             egui::RichText::new("Browse Image")
                 .size(15.0)
                 .strong()
-                .color(egui::Color32::BLACK),
+                .color(egui::Color32::WHITE),
         )
         .fill(ACCENT)
         .stroke(egui::Stroke::NONE);
@@ -291,7 +290,7 @@ impl IcoConverterApp {
                     egui::RichText::new(format!("{size}"))
                         .size(13.0)
                         .strong()
-                        .color(if selected { egui::Color32::BLACK } else { TEXT }),
+                        .color(if selected { egui::Color32::WHITE } else { TEXT }),
                 );
                 let resp = ui.add_sized([chip_w, 36.0], label);
                 if resp.clicked() {
@@ -312,7 +311,7 @@ impl IcoConverterApp {
             egui::RichText::new("Convert & Save ICO")
                 .size(16.0)
                 .strong()
-                .color(egui::Color32::BLACK),
+                .color(egui::Color32::WHITE),
         )
         .fill(ACCENT)
         .stroke(egui::Stroke::NONE)
@@ -337,12 +336,7 @@ impl IcoConverterApp {
         }
         ui.add_space(4.0);
         let color = if self.status_is_error { ERROR } else { SUCCESS };
-        let bg = egui::Color32::from_rgba_unmultiplied(
-            if self.status_is_error { 255 } else { 120 },
-            if self.status_is_error { 255 } else { 120 },
-            if self.status_is_error { 255 } else { 120 },
-            22,
-        );
+        let bg = egui::Color32::from_rgba_unmultiplied(96, 96, 96, 18);
         egui::Frame::none()
             .fill(bg)
             .stroke(egui::Stroke::new(1.0_f32, egui::Color32::from_rgba_unmultiplied(color.r(), color.g(), color.b(), 60)))
@@ -393,7 +387,6 @@ impl eframe::App for IcoConverterApp {
             egui::Window::new("About")
                 .collapsible(false)
                 .resizable(false)
-                .anchor(egui::Align2::CENTER_CENTER, [0.0, 0.0])
                 .open(&mut self.show_about)
                 .show(ctx, |ui| {
                     ui.vertical_centered(|ui| {
