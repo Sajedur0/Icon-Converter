@@ -1,10 +1,11 @@
 #![windows_subsystem = "windows"]
 
-#[allow(dead_code)]
 mod app;
 mod converter;
+mod theme;
 #[allow(dead_code)]
 mod utils;
+mod widgets;
 
 fn main() -> eframe::Result<()> {
     let options = eframe::NativeOptions {
