@@ -1,0 +1,44 @@
+name: Build & UI Preview
+
+on:
+  push:
+    branches: ['arena/b7b5c1be-icon-converter']
+  workflow_dispatch:
+
+jobs:
+  check:
+    name: cargo check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: System libraries
+        run: sudo apt-get update && sudo apt-get install -y libgtk-3-dev libxkbcommon-x11-0
+      - name: Check
+        run: cargo check --all-targets
+
+  preview:
+    name: UI screenshot
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: System libraries
+        run: sudo apt-get update && sudo apt-get install -y libgtk-3-dev libxkbcommon-x11-0 xvfb x11-apps imagemagick
+      - name: Build
+        run: cargo build --bin ico_converter
+      - name: Capture window
+        run: |
+          Xvfb :99 -screen 0 1280x900x24 -nolisten tcp &
+          export DISPLAY=:99
+          ./target/debug/ico_converter &
+          APP_PID=$!
+          sleep 12
+          import -window root preview.png || xwd -root -silent | convert xwd:- preview.png
+          kill "$APP_PID" || true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ui-preview
+          path: preview.png
