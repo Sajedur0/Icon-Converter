@@ -1,24 +1,65 @@
-use crate::app::IcoConverterApp;
-use crate::theme;
+//! Inline success / error notification above the action bar.
 
-pub(crate) fn show(app: &mut IcoConverterApp, ui: &mut egui::Ui) {
-    if app.status_message.is_empty() {
-        return;
-    }
-    ui.add_space(4.0);
-    let color = if app.status_is_error { theme::ERROR } else { theme::SUCCESS };
-    let bg = egui::Color32::from_rgba_unmultiplied(96, 96, 96, 18);
-    egui::Frame::none()
-        .fill(bg)
-        .stroke(egui::Stroke::new(
-            1.0_f32,
-            egui::Color32::from_rgba_unmultiplied(color.r(), color.g(), color.b(), 60),
-        ))
-        .rounding(egui::Rounding::same(8.0))
-        .inner_margin(egui::Margin::same(10.0))
+use crate::app::{IcoConverterApp, StatusKind};
+use crate::icons;
+use crate::theme::{self, Palette, Weight};
+
+pub fn show(app: &mut IcoConverterApp, ui: &mut egui::Ui, p: &Palette) {
+    let status = match app.status.clone() {
+        Some(status) => status,
+        None => return,
+    };
+
+    let (accent, background) = match status.kind {
+        StatusKind::Success => (p.success, p.success_soft),
+        StatusKind::Error => (p.danger, p.danger_soft),
+    };
+
+    let dismissed = egui::Frame::none()
+        .fill(background)
+        .rounding(9.0)
+        .stroke(egui::Stroke::new(1.0, accent))
+        .inner_margin(egui::Margin::symmetric(12.0, 10.0))
         .show(ui, |ui| {
-            ui.label(
-                egui::RichText::new(&app.status_message).color(color).size(13.0),
-            );
-        });
+            ui.horizontal(|ui| {
+                ui.spacing_mut().item_spacing.x = 10.0;
+                let (badge, _) =
+                    ui.allocate_exact_size(egui::vec2(22.0, 22.0), egui::Sense::hover());
+                let painter = ui.painter();
+                painter.circle_filled(badge.center(), 11.0, accent);
+                let inner = egui::Rect::from_center_size(badge.center(), egui::vec2(11.0, 11.0));
+                match status.kind {
+                    StatusKind::Success => icons::check(painter, inner, p.on_accent),
+                    StatusKind::Error => icons::close(painter, inner, p.on_accent),
+                }
+
+                ui.vertical(|ui| {
+                    ui.spacing_mut().item_spacing.y = 1.0;
+                    ui.label(theme::txt(
+                        status.message.clone(),
+                        12.5,
+                        Weight::SemiBold,
+                        accent,
+                    ));
+                    if let Some(detail) = &status.detail {
+                        ui.label(theme::txt(detail.clone(), 11.0, Weight::Regular, p.muted));
+                    }
+                });
+
+                ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                    let (rect, resp) =
+                        ui.allocate_exact_size(egui::vec2(24.0, 24.0), egui::Sense::click());
+                    icons::close(ui.painter(), rect.shrink(6.0), p.muted);
+                    resp.clicked()
+                })
+                .inner
+            })
+            .inner
+        })
+        .inner;
+
+    if dismissed {
+        app.status = None;
+    }
+    ui.add_space(10.0);
 }
