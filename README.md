@@ -1,107 +1,123 @@
 <div align="center">
 
-# 🎨 ICO Converter
+<img src="logo.png" width="120" alt="ICO Converter logo" />
 
-**A fast, lightweight desktop app to convert any image into a multi-size `.ico` icon — built with Rust & egui**
+# ICO Converter
+
+**A polished, native desktop utility for turning any image into a multi-resolution Windows `.ico` — built with Rust & egui.**
 
 ![Rust](https://img.shields.io/badge/Rust-1.75%2B-dea584?style=flat-square&logo=rust&logoColor=white)
 ![egui](https://img.shields.io/badge/egui-0.28-8b5cf6?style=flat-square)
-![Platform](https://img.shields.io/badge/Platform-Windows-0078d6?style=flat-square&logo=windows&logoColor=white)
+![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20macOS-0078d6?style=flat-square)
 ![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
 
 </div>
 
 ---
 
-## ✨ Features
+## ✨ What's inside
 
-- 🖼️ Convert **PNG · JPG · JPEG · BMP · GIF · WEBP · TIFF** → **`.ico`**
-- 🖱️ **Drag & drop** or click to browse
-- 📐 Select any combination of standard icon sizes (multi-resolution `.ico`)
-- 👁️ Live preview with transparency checkerboard
-- 🎨 Sleek dark-mode UI
-- ⚡ Small, fast, native binary — no runtime dependencies
+A complete UI redesign built around a small, consistent design system:
 
-## 📐 Supported Sizes
+- 🎨 **Professional light & dark themes** — one palette of design tokens, switched instantly from the header.
+- 🔤 **Bundled Inter typeface** (regular / semibold / bold) — identical typography on every machine, no font installation needed.
+- 🧩 **Card-based, numbered workflow** — Source image → Icon sizes → Export, with a sticky action bar.
+- 🖼️ **Live preview** on a transparency checkerboard, plus a ruler showing the icon at 16 / 24 / 32 / 48 / 64 px.
+- 📏 **Aspect-ratio control** — *Fill & crop* (centre-crop) or *Fit & pad* (transparent letterbox), so non-square images never get squashed.
+- 🖱️ **Drag & drop anywhere** in the window, browse dialog, `Replace` / `Remove` actions and in-memory drops.
+- 🎯 **Crisp vector icons** drawn at runtime (no emoji, no missing-glyph boxes).
+- 🔔 **Inline success / error notifications** with dismiss, and a helpful About dialog.
+- 🪟 **Native window icon** on every platform (loaded from `icon.ico`), plus a stable app id.
+- ♿ Scrollable content that stays usable down to a 470 × 660 window.
 
-| 16×16 | 24×24 | 32×32 | 48×48 | 64×64 | 128×128 | 256×256 |
-|:-----:|:-----:|:-----:|:-----:|:-----:|:-------:|:-------:|
-| ✔️     | ✔️     | ✔️     | ✔️     | ✔️     | ✔️       | ✔️       |
+### Functionality
 
-You can toggle each size independently. All selected sizes are packed into a single `.ico` file.
+| Feature | Detail |
+|---------|--------|
+| Input | PNG · JPG · JPEG · BMP · GIF · WEBP · TIFF · TIF |
+| Output | Single `.ico` containing every selected resolution |
+| Sizes | 16, 24, 32, 48, 64, 128, 256 px (toggle independently) |
+| Resampling | Lanczos3, high quality |
+| Transparency | Alpha channel preserved end-to-end |
+| Shortcuts | `Ctrl+O` browse · `Ctrl+Enter` export · `Esc` close dialog |
+| Default filename | Derived from the source file (`photo.png` → `photo.ico`) |
 
-## 🚀 Getting Started
+---
+
+## 🚀 Getting started
 
 ### Prerequisites
 
-- [Rust](https://rustup.rs/) 1.75 or later (stable toolchain)
-- Cargo (ships with Rust)
-- Windows (a custom `.ico` is embedded into the executable)
-
-### Build & Run
+- [Rust](https://rustup.rs/) 1.75+ (stable) with Cargo
+- Linux: `libgtk-3-dev` and `libxkbcommon-x11-0` (for native file dialogs / winit)
+- Windows: nothing extra — `build.rs` embeds `icon.ico` into the executable
 
 ```bash
-# Debug build
-cargo run
-
-# Optimized release build
-cargo build --release
-
-# The binary will be at: target/release/ico_converter.exe
+cargo run                 # debug
+cargo build --release     # optimised binary in target/release/
 ```
 
-## 🎯 Usage
+### Usage
 
-1. **Add an image** — drag & drop it onto the app window, or click **Browse Image**.
-2. **Pick sizes** — click the size chips (16 → 256) to include or exclude them.
-3. **Convert** — click **Convert & Save ICO**, choose a destination, done. ✅
+1. **Drop an image** onto the window, click the dashed area, or press `Ctrl+O`.
+2. **Pick resolutions** (all seven are selected by default) and choose how non-square images should be fitted.
+3. Click **Convert & Save ICO**, choose a destination, done. ✅
 
-### Supported Input Formats
+---
 
-| Format  | Extension    |
-|---------|--------------|
-| PNG     | `.png`       |
-| JPEG    | `.jpg`, `.jpeg` |
-| BMP     | `.bmp`       |
-| GIF     | `.gif`       |
-| WebP    | `.webp`      |
-| TIFF    | `.tiff`, `.tif` |
+## 🖥️ Design preview
 
-> 💡 Tip: transparent PNGs convert cleanly — alpha channel is preserved.
+Because this is a native app, it cannot run inside a browser sandbox. An interactive HTML mirror of the new interface lives at
+[`docs/design-preview.html`](docs/design-preview.html) — open it locally, or serve the repository root:
 
-## 🛠️ Tech Stack
+```bash
+python3 -m http.server 8080
+# http://localhost:8080/docs/design-preview.html
+```
 
-- **[eframe / egui](https://github.com/emilk/egui)** — immediate-mode GUI framework
-- **[image](https://github.com/image-rs/image)** — image loading & resizing
-- **[ico](https://github.com/image-rs/ico)** — ICO container encoding
-- **[rfd](https://github.com/PolyMeilex/rfd)** — native file dialogs
-- **[winres](https://github.com/mxre/winres)** — embeds `icon.ico` into the `.exe`
+The preview supports theme switching, image drop, size chips, fit modes, the About dialog and notifications. It uses the exact
+same colour tokens and bundled Inter fonts as the egui implementation.
 
-## 📁 Project Structure
+---
+
+## 📁 Project structure
 
 ```
 ├── src/
-│   ├── main.rs        # App entry point & window setup
-│   ├── app.rs         # egui UI: layout, theming, interactions
-│   ├── converter.rs   # Image loading, resizing & ICO export logic
-│   └── utils.rs       # Helpers: extension check, message formatting
-├── build.rs           # Embeds the Windows icon resource
-├── icon.ico           # App icon
-└── Cargo.toml         # Dependencies & release profile
+│   ├── main.rs            # Window setup + native app icon
+│   ├── app.rs             # State, file handling, shortcuts, panel layout
+│   ├── theme.rs           # Design tokens, Inter fonts, egui visuals, card frame
+│   ├── icons.rs           # Vector icon primitives + dashed rounded border
+│   ├── converter.rs       # Square framing, Lanczos3 resize, ICO encoding
+│   ├── utils.rs           # Validation, labels, human-readable sizes
+│   └── widgets/
+│       ├── header.rs      # App bar (brand, theme toggle, About)
+│       ├── section.rs     # Numbered section heading
+│       ├── drop_zone.rs   # Source card, preview, file details, size ruler
+│       ├── sizes.rs       # Resolution chips + aspect-ratio segmented control
+│       ├── footer.rs      # Summary + primary export action
+│       ├── status.rs      # Inline notification
+│       └── about.rs       # About modal
+├── assets/fonts/          # Inter (SIL Open Font License 1.1, see OFL-LICENSE.txt)
+├── docs/design-preview.html
+├── icon.ico               # Application icon
+└── build.rs               # Windows icon resource
 ```
 
-## 🏗️ Build Details
+---
 
-The release profile is tuned for a minimal binary:
+## 🛠️ Tech stack
 
-```toml
-[profile.release]
-opt-level = "z"   # optimize for size
-lto = true        # link-time optimization
-strip = true      # strip debug symbols
-panic = "abort"   # smaller code, no unwinding
-codegen-units = 1 # better optimization
-```
+- **[eframe / egui 0.28](https://github.com/emilk/egui)** — immediate-mode native GUI
+- **[image 0.25](https://github.com/image-rs/image)** — decoding, cropping, resizing
+- **[ico 0.3](https://github.com/image-rs/ico)** — ICO container encoding
+- **[rfd 0.14](https://github.com/PolyMeilex/rfd)** — native file dialogs
+- **[winres](https://github.com/mxre/winres)** — Windows executable icon
+- **Inter** by Rasmus Andersson — SIL Open Font License 1.1
+
+The release profile stays tuned for a small binary (`opt-level = "z"`, LTO, strip, `panic = "abort"`).
+
+---
 
 ## 👤 Developer
 
@@ -113,7 +129,7 @@ codegen-units = 1 # better optimization
 
 ## 📄 License
 
-[MIT](LICENSE) © 2026
+[MIT](LICENSE) © 2026 · Bundled Inter font under [SIL OFL 1.1](assets/fonts/OFL-LICENSE.txt).
 
 ---
 
