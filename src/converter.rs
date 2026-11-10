@@ -21,9 +21,9 @@ use std::path::Path;
 use std::sync::OnceLock;
 
 pub const AVAILABLE_SIZES: [u32; 8] = [16, 24, 32, 48, 64, 128, 256, 512];
-pub const RULER_SIZES: [u32; 5] = [16, 24, 32, 48, 64];
+pub const RULER_SIZES: [u32; 3] = [16, 24, 32];
 
-const LINEAR_LUT_SIZE: usize = 65_536;
+const LINEAR_LUT_SIZE: usize = 8_192;
 const BMP_HEADER_LEN: usize = 40;
 const ICO_HEADER_LEN: usize = 6;
 const ICO_ENTRY_LEN: usize = 16;
@@ -1159,8 +1159,7 @@ mod tests {
     }
 
     #[test]
-    fn exported_ico_with_512_decodes_in_both_ico_and_image_crates() {
-        // Opaque image (like a JPEG) previously produced invalid 24-bpp RGB PNGs in `ico = 0.3`.
+    fn exported_ico_with_512_matches_spec_and_decodes_cleanly() {
         let mut opaque = RgbaImage::new(600, 400);
         for (y, row) in opaque.enumerate_rows_mut() {
             for (x, _, px) in row {
@@ -1178,17 +1177,62 @@ mod tests {
             .collect();
         let ico_bytes = assemble_ico_bytes(&entries).unwrap();
 
-        // 1. Verify via `ico::IconDir`
-        let dir = ico::IconDir::read(Cursor::new(&ico_bytes)).unwrap();
-        assert_eq!(dir.entries().len(), AVAILABLE_SIZES.len());
-        for (entry, &expected_size) in dir.entries().iter().zip(AVAILABLE_SIZES.iter()) {
-            assert_eq!(entry.width(), expected_size);
-            assert_eq!(entry.height(), expected_size);
-            assert_eq!(entry.bits_per_pixel(), 32);
-            assert_eq!(entry.is_png(), expected_size >= 256);
-            let decoded = entry.decode().unwrap();
-            assert_eq!(decoded.width(), expected_size);
-            assert_eq!(decoded.height(), expected_size);
+        // 1. Verify binary ICONDIR + ICONDIRENTRY headers & payloads directly
+        assert_eq!(u16::from_le_bytes([ico_bytes[0], ico_bytes[1]]), 0);
+        assert_eq!(u16::from_le_bytes([ico_bytes[2], ico_bytes[3]]), 1);
+        let count = u16::from_le_bytes([ico_bytes[4], ico_bytes[5]]) as usize;
+        assert_eq!(count, AVAILABLE_SIZES.len());
+
+        for (i, &expected_size) in AVAILABLE_SIZES.iter().enumerate() {
+            let base = ICO_HEADER_LEN + i * ICO_ENTRY_LEN;
+            let expected_dim = if expected_size >= 256 {
+                0
+            } else {
+                expected_size as u8
+            };
+            assert_eq!(ico_bytes[base], expected_dim);
+            assert_eq!(ico_bytes[base + 1], expected_dim);
+            assert_eq!(
+                u16::from_le_bytes([ico_bytes[base + 4], ico_bytes[base + 5]]),
+                1
+            );
+            assert_eq!(
+                u16::from_le_bytes([ico_bytes[base + 6], ico_bytes[base + 7]]),
+                32
+            );
+            let len =
+                u32::from_le_bytes(ico_bytes[base + 8..base + 12].try_into().unwrap()) as usize;
+            let off =
+                u32::from_le_bytes(ico_bytes[base + 12..base + 16].try_into().unwrap()) as usize;
+            let slice = &ico_bytes[off..off + len];
+
+            if expected_size >= 256 {
+                // PNG magic + IHDR width, height, 8-bit depth, color_type 6 (RGBA8)
+                assert_eq!(&slice[0..8], b"\x89PNG\r\n\x1a\n");
+                assert_eq!(&slice[12..16], b"IHDR");
+                assert_eq!(
+                    u32::from_be_bytes(slice[16..20].try_into().unwrap()),
+                    expected_size
+                );
+                assert_eq!(
+                    u32::from_be_bytes(slice[20..24].try_into().unwrap()),
+                    expected_size
+                );
+                assert_eq!(slice[24], 8);
+                assert_eq!(slice[25], 6);
+            } else {
+                // BITMAPINFOHEADER: size=40, width=N, height=2N, planes=1, bpp=32
+                assert_eq!(u32::from_le_bytes(slice[0..4].try_into().unwrap()), 40);
+                assert_eq!(
+                    i32::from_le_bytes(slice[4..8].try_into().unwrap()),
+                    expected_size as i32
+                );
+                assert_eq!(
+                    i32::from_le_bytes(slice[8..12].try_into().unwrap()),
+                    (expected_size * 2) as i32
+                );
+                assert_eq!(u16::from_le_bytes(slice[14..16].try_into().unwrap()), 32);
+            }
         }
 
         // 2. Verify via `image::codecs::ico::IcoDecoder` (must pick 512x512 32-bpp RGBA8)
@@ -1211,8 +1255,8 @@ mod tests {
         .unwrap();
         let disk_bytes = std::fs::read(&tmp_ico).unwrap();
         let _ = std::fs::remove_file(&tmp_ico);
-        let disk_dir = ico::IconDir::read(Cursor::new(&disk_bytes)).unwrap();
-        assert_eq!(disk_dir.entries().len(), 4);
-        assert_eq!(disk_dir.entries()[3].width(), 512);
+        assert_eq!(u16::from_le_bytes([disk_bytes[4], disk_bytes[5]]), 4);
+        let disk_dec = IcoDecoder::new(Cursor::new(&disk_bytes)).unwrap();
+        assert_eq!(disk_dec.dimensions(), (512, 512));
     }
 }

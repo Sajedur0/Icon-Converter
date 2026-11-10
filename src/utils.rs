@@ -1,11 +1,11 @@
-//! Small formatting / validation helpers.
+//! Small formatting and file-type validation helpers.
 
 use image::ImageFormat;
 use std::path::{Path, PathBuf};
 use std::time::Duration;
 
 pub const SUPPORTED_EXTENSIONS: &[&str] = &[
-    "png", "apng", "jpg", "jpeg", "jfif", "bmp", "gif", "webp", "tiff", "tif", "ico", "tga", "qoi",
+    "png", "apng", "jpg", "jpeg", "jfif", "webp", "bmp", "gif", "tiff", "tif", "ico",
 ];
 
 pub fn is_supported_extension(path: &Path) -> bool {
@@ -38,19 +38,11 @@ pub fn detected_format_label(format: Option<ImageFormat>, path: Option<&Path>) -
         let name = match fmt {
             ImageFormat::Png => Some("PNG"),
             ImageFormat::Jpeg => Some("JPEG"),
-            ImageFormat::Gif => Some("GIF"),
             ImageFormat::WebP => Some("WEBP"),
             ImageFormat::Bmp => Some("BMP"),
+            ImageFormat::Gif => Some("GIF"),
             ImageFormat::Tiff => Some("TIFF"),
             ImageFormat::Ico => Some("ICO"),
-            ImageFormat::Tga => Some("TGA"),
-            ImageFormat::Qoi => Some("QOI"),
-            ImageFormat::Pnm => Some("PNM"),
-            ImageFormat::Avif => Some("AVIF"),
-            ImageFormat::Hdr => Some("HDR"),
-            ImageFormat::OpenExr => Some("EXR"),
-            ImageFormat::Farbfeld => Some("FF"),
-            ImageFormat::Dds => Some("DDS"),
             _ => None,
         };
         if let Some(label) = name {
@@ -93,7 +85,7 @@ pub fn ensure_ico_extension(mut path: PathBuf) -> PathBuf {
     path
 }
 
-/// Keeps long file names / paths readable in a narrow window.
+/// Keeps long file names / paths readable in a compact window.
 pub fn truncate_middle(text: &str, max_chars: usize) -> String {
     let chars: Vec<char> = text.chars().collect();
     if chars.len() <= max_chars {
@@ -108,10 +100,9 @@ pub fn truncate_middle(text: &str, max_chars: usize) -> String {
     out
 }
 
-/// Shortens a path for status messages, always keeping the file name.
 pub fn short_path(path: &Path) -> String {
     let full = path.to_string_lossy().into_owned();
-    truncate_middle(&full, 54)
+    truncate_middle(&full, 50)
 }
 
 #[cfg(test)]
@@ -124,6 +115,7 @@ mod tests {
         assert!(is_supported_extension(Path::new("photo.JpEg")));
         assert!(is_supported_extension(Path::new("app.ico")));
         assert!(!is_supported_extension(Path::new("notes.txt")));
+        assert!(!is_supported_extension(Path::new("legacy.tga")));
     }
 
     #[test]
