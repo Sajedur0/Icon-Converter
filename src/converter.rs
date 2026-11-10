@@ -52,17 +52,17 @@ impl FitMode {
 
     pub const fn label(self) -> &'static str {
         match self {
-            FitMode::Cover => "Fill & crop",
-            FitMode::Contain => "Fit & pad",
-            FitMode::Trim => "Trim & fit",
+            FitMode::Cover => "Crop",
+            FitMode::Contain => "Contain",
+            FitMode::Trim => "Auto-Trim",
         }
     }
 
     pub const fn hint(self) -> &'static str {
         match self {
-            FitMode::Cover => "Non-square images are centre-cropped",
-            FitMode::Contain => "Empty space stays transparent",
-            FitMode::Trim => "Transparent outer margins are removed",
+            FitMode::Cover => "Center-crop to square",
+            FitMode::Contain => "Pad with transparency",
+            FitMode::Trim => "Auto-trim alpha bounds",
         }
     }
 }

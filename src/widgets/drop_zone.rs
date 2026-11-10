@@ -1,5 +1,4 @@
-//! Minimal source-image card: clean drop zone when empty, compact side-by-side
-//! preview + metadata + pixel-exact mini icons when loaded.
+//! Source card: compact drop zone, live square preview, metadata and pixel-exact mini tiles.
 
 use crate::app::IcoConverterApp;
 use crate::converter;
@@ -12,7 +11,7 @@ pub fn show(app: &mut IcoConverterApp, ui: &mut egui::Ui, ctx: &egui::Context, i
     let loading = app.loading_label.clone();
 
     theme::card().show(ui, |ui| {
-        ui.spacing_mut().item_spacing = egui::vec2(8.0, 8.0);
+        ui.spacing_mut().item_spacing = egui::vec2(7.0, 7.0);
         if has_source {
             loaded(app, ui, ctx);
         } else if let Some(name) = loading {
@@ -26,24 +25,24 @@ pub fn show(app: &mut IcoConverterApp, ui: &mut egui::Ui, ctx: &egui::Context, i
 fn preparing(ui: &mut egui::Ui, name: &str) {
     let p = PALETTE;
     let width = ui.available_width();
-    let (rect, _) = ui.allocate_exact_size(egui::vec2(width, 138.0), egui::Sense::hover());
+    let (rect, _) = ui.allocate_exact_size(egui::vec2(width, 118.0), egui::Sense::hover());
     let painter = ui.painter();
 
-    painter.rect_filled(rect, 10.0, p.surface_alt);
-    painter.rect_stroke(rect, 10.0, egui::Stroke::new(1.0_f32, p.border));
+    painter.rect_filled(rect, 8.0, p.surface_alt);
+    painter.rect_stroke(rect, 8.0, egui::Stroke::new(1.0_f32, p.border));
 
     painter.text(
-        egui::pos2(rect.center().x, rect.center().y - 10.0),
+        egui::pos2(rect.center().x, rect.center().y - 8.0),
         egui::Align2::CENTER_CENTER,
-        format!("Preparing {}…", utils::truncate_middle(name, 34)),
-        theme::font(13.5, Weight::SemiBold),
+        format!("Processing {}…", utils::truncate_middle(name, 34)),
+        theme::font(11.5, Weight::SemiBold),
         p.text,
     );
     painter.text(
-        egui::pos2(rect.center().x, rect.center().y + 12.0),
+        egui::pos2(rect.center().x, rect.center().y + 10.0),
         egui::Align2::CENTER_CENTER,
-        "Decoding & rendering icon frames",
-        theme::font(11.0, Weight::Regular),
+        "Rendering linear-light frames",
+        theme::font(9.5, Weight::Regular),
         p.muted,
     );
 }
@@ -51,7 +50,7 @@ fn preparing(ui: &mut egui::Ui, name: &str) {
 fn empty(app: &mut IcoConverterApp, ui: &mut egui::Ui, ctx: &egui::Context, is_dragging: bool) {
     let p = PALETTE;
     let width = ui.available_width();
-    let (rect, resp) = ui.allocate_exact_size(egui::vec2(width, 144.0), egui::Sense::click());
+    let (rect, resp) = ui.allocate_exact_size(egui::vec2(width, 122.0), egui::Sense::click());
     let painter = ui.painter();
 
     let fill = if is_dragging {
@@ -59,65 +58,65 @@ fn empty(app: &mut IcoConverterApp, ui: &mut egui::Ui, ctx: &egui::Context, is_d
     } else {
         p.surface_alt
     };
-    painter.rect_filled(rect, 10.0, fill);
+    painter.rect_filled(rect, 8.0, fill);
 
     let border = egui::Stroke::new(
-        if is_dragging { 1.8_f32 } else { 1.2_f32 },
+        if is_dragging { 1.6_f32 } else { 1.1_f32 },
         if is_dragging {
             p.accent
         } else {
             p.border_strong
         },
     );
-    icons::dashed_round_rect(painter, rect.shrink(1.0), 10.0, border, 7.0, 5.0);
+    icons::dashed_round_rect(painter, rect.shrink(1.0), 8.0, border, 6.0, 4.5);
 
     let badge = egui::Rect::from_center_size(
-        egui::pos2(rect.center().x, rect.top() + 34.0),
-        egui::vec2(38.0, 38.0),
+        egui::pos2(rect.center().x, rect.top() + 28.0),
+        egui::vec2(32.0, 32.0),
     );
-    painter.rect_filled(badge, 10.0, p.accent_soft);
-    icons::upload(painter, badge.shrink(10.0), p.accent);
+    painter.rect_filled(badge, 8.0, p.accent_soft);
+    icons::upload(painter, badge.shrink(8.5), p.accent);
 
     let headline = if is_dragging {
-        "Release to load image"
+        "Release to import"
     } else {
-        "Drag & drop an image here"
+        "Drop source image here"
     };
     painter.text(
-        egui::pos2(rect.center().x, rect.top() + 69.0),
+        egui::pos2(rect.center().x, rect.top() + 57.0),
         egui::Align2::CENTER_CENTER,
         headline,
-        theme::font(13.5, Weight::SemiBold),
+        theme::font(11.5, Weight::SemiBold),
         if is_dragging { p.accent } else { p.text },
     );
 
     let button = egui::Rect::from_center_size(
-        egui::pos2(rect.center().x, rect.top() + 100.0),
-        egui::vec2(146.0, 28.0),
+        egui::pos2(rect.center().x, rect.top() + 84.0),
+        egui::vec2(126.0, 24.0),
     );
-    painter.rect_filled(button, 7.0, p.surface);
-    painter.rect_stroke(button, 7.0, egui::Stroke::new(1.0_f32, p.border_strong));
+    painter.rect_filled(button, 6.0, p.surface);
+    painter.rect_stroke(button, 6.0, egui::Stroke::new(1.0_f32, p.border_strong));
     icons::folder(
         painter,
         egui::Rect::from_center_size(
-            egui::pos2(button.left() + 20.0, button.center().y),
-            egui::vec2(14.0, 14.0),
+            egui::pos2(button.left() + 17.0, button.center().y),
+            egui::vec2(12.5, 12.5),
         ),
         p.text,
     );
     painter.text(
-        egui::pos2(button.left() + 33.0, button.center().y),
+        egui::pos2(button.left() + 28.0, button.center().y),
         egui::Align2::LEFT_CENTER,
-        "Browse  ·  Ctrl+O",
-        theme::font(11.5, Weight::SemiBold),
+        "Browse · Ctrl+O",
+        theme::font(10.0, Weight::SemiBold),
         p.text,
     );
 
     painter.text(
-        egui::pos2(rect.center().x, rect.top() + 129.0),
+        egui::pos2(rect.center().x, rect.top() + 109.0),
         egui::Align2::CENTER_CENTER,
         "PNG · JPG · WEBP · BMP · GIF · TIFF · ICO",
-        theme::font(10.5, Weight::Regular),
+        theme::font(9.5, Weight::Regular),
         p.subtle,
     );
 
@@ -136,15 +135,15 @@ fn loaded(app: &mut IcoConverterApp, ui: &mut egui::Ui, ctx: &egui::Context) {
                 (converter::FitMode::Trim, Some((_, _, bw, bh))) if bw != w || bh != h => {
                     format!("{w}×{h} → {bw}×{bh}")
                 }
-                _ => format!("{w} × {h}"),
+                _ => format!("{w}×{h}"),
             };
             let size = s
                 .size_bytes
                 .map(utils::human_size)
-                .unwrap_or_else(|| "Memory".to_owned());
+                .unwrap_or_else(|| "Buffer".to_owned());
             let prep = utils::format_duration(s.prep_duration);
             (
-                utils::truncate_middle(&s.name, 30),
+                utils::truncate_middle(&s.name, 28),
                 format!("{} · {dims} · {size} · {prep}", s.format),
             )
         }
@@ -163,16 +162,15 @@ fn loaded(app: &mut IcoConverterApp, ui: &mut egui::Ui, ctx: &egui::Context) {
     let mut toggled_size: Option<u32> = None;
 
     ui.horizontal(|ui| {
-        ui.spacing_mut().item_spacing.x = 12.0;
+        ui.spacing_mut().item_spacing.x = 10.0;
 
-        // Left: crisp 96x96 framed square preview on transparency checkerboard
-        let (box_rect, _) = ui.allocate_exact_size(egui::vec2(96.0, 96.0), egui::Sense::hover());
+        let (box_rect, _) = ui.allocate_exact_size(egui::vec2(86.0, 86.0), egui::Sense::hover());
         let painter = ui.painter();
-        painter.rect_filled(box_rect, 9.0, p.surface_alt);
-        painter.rect_stroke(box_rect, 9.0, egui::Stroke::new(1.0_f32, p.border));
+        painter.rect_filled(box_rect, 8.0, p.surface_alt);
+        painter.rect_stroke(box_rect, 8.0, egui::Stroke::new(1.0_f32, p.border));
 
         if let Some(tex_id) = main_tex {
-            let img_rect = box_rect.shrink(6.0);
+            let img_rect = box_rect.shrink(5.0);
             let side = img_rect.width();
             let tiled_uv =
                 egui::Rect::from_min_max(egui::Pos2::ZERO, egui::pos2(side / 12.0, side / 12.0));
@@ -186,37 +184,35 @@ fn loaded(app: &mut IcoConverterApp, ui: &mut egui::Ui, ctx: &egui::Context) {
             painter.rect_stroke(img_rect, 2.0, egui::Stroke::new(1.0_f32, p.border_strong));
         }
 
-        // Right: file metadata, live 16/24/32 px actual-pixel strip and Replace/Remove actions
         ui.vertical(|ui| {
             ui.spacing_mut().item_spacing.y = 6.0;
 
             ui.horizontal(|ui| {
                 ui.vertical(|ui| {
                     ui.spacing_mut().item_spacing.y = 1.0;
-                    ui.label(theme::txt(name, 13.0, Weight::SemiBold, p.text));
-                    ui.label(theme::txt(meta_line, 11.0, Weight::Regular, p.muted));
+                    ui.label(theme::txt(name, 11.5, Weight::SemiBold, p.text));
+                    ui.label(theme::txt(meta_line, 9.5, Weight::Regular, p.muted));
                 });
 
                 ui.with_layout(egui::Layout::right_to_left(egui::Align::Min), |ui| {
-                    ui.spacing_mut().item_spacing.x = 6.0;
-                    let remove =
-                        egui::Button::new(theme::txt("Remove", 11.5, Weight::SemiBold, p.danger))
+                    ui.spacing_mut().item_spacing.x = 5.0;
+                    let clear =
+                        egui::Button::new(theme::txt("Clear", 10.0, Weight::SemiBold, p.danger))
                             .fill(p.danger_soft)
                             .stroke(egui::Stroke::NONE)
-                            .rounding(7.0)
-                            .min_size(egui::vec2(0.0, 28.0));
-                    remove_clicked = ui.add(remove).clicked();
-                    replace_clicked = ui.add(theme::secondary_button("Replace")).clicked();
+                            .rounding(6.0)
+                            .min_size(egui::vec2(0.0, 24.0));
+                    remove_clicked = ui.add(clear).clicked();
+                    replace_clicked = ui.add(theme::secondary_button("Change")).clicked();
                 });
             });
 
-            // Inline actual-pixel mini icons (16, 24, 32 px)
             ui.horizontal(|ui| {
-                ui.spacing_mut().item_spacing.x = 6.0;
+                ui.spacing_mut().item_spacing.x = 5.0;
                 for (idx, &size) in converter::RULER_SIZES.iter().enumerate() {
                     let active = app.is_size_selected(size);
                     let (tile, resp) =
-                        ui.allocate_exact_size(egui::vec2(62.0, 42.0), egui::Sense::click());
+                        ui.allocate_exact_size(egui::vec2(60.0, 36.0), egui::Sense::click());
                     let painter = ui.painter();
                     let border_col = if resp.hovered() {
                         p.accent
@@ -225,13 +221,13 @@ fn loaded(app: &mut IcoConverterApp, ui: &mut egui::Ui, ctx: &egui::Context) {
                     } else {
                         p.border
                     };
-                    painter.rect_filled(tile, 7.0, p.surface_alt);
-                    painter.rect_stroke(tile, 7.0, egui::Stroke::new(1.0_f32, border_col));
+                    painter.rect_filled(tile, 6.0, p.surface_alt);
+                    painter.rect_stroke(tile, 6.0, egui::Stroke::new(1.0_f32, border_col));
 
-                    let side = size as f32;
+                    let side = (size as f32).min(24.0);
                     let icon_rect = egui::Rect::from_center_size(
-                        egui::pos2(tile.left() + 20.0, tile.center().y),
-                        egui::vec2(side.min(28.0), side.min(28.0)),
+                        egui::pos2(tile.left() + 17.0, tile.center().y),
+                        egui::vec2(side, side),
                     );
                     if let Some(ruler_ids) = ruler_tex {
                         let tint = if active {
@@ -252,11 +248,11 @@ fn loaded(app: &mut IcoConverterApp, ui: &mut egui::Ui, ctx: &egui::Context) {
                         );
                     }
                     painter.text(
-                        egui::pos2(tile.right() - 8.0, tile.center().y),
+                        egui::pos2(tile.right() - 7.0, tile.center().y),
                         egui::Align2::RIGHT_CENTER,
-                        format!("{size}"),
+                        format!("{size}px"),
                         theme::font(
-                            10.5,
+                            9.5,
                             if active {
                                 Weight::SemiBold
                             } else {
@@ -266,10 +262,7 @@ fn loaded(app: &mut IcoConverterApp, ui: &mut egui::Ui, ctx: &egui::Context) {
                         if active { p.text } else { p.subtle },
                     );
 
-                    if resp
-                        .on_hover_text(format!("Toggle {size} × {size}"))
-                        .clicked()
-                    {
+                    if resp.on_hover_text(format!("{size}×{size} px")).clicked() {
                         toggled_size = Some(size);
                     }
                 }

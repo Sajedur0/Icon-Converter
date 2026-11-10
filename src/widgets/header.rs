@@ -1,4 +1,4 @@
-//! Minimal light-mode top bar: brand mark, title and About action.
+//! Compact top bar: brand mark, concise identity and About trigger.
 
 use crate::app::IcoConverterApp;
 use crate::icons;
@@ -9,19 +9,19 @@ pub fn show(app: &mut IcoConverterApp, ui: &mut egui::Ui) {
 
     let info_clicked = ui
         .horizontal(|ui| {
-            ui.spacing_mut().item_spacing.x = 10.0;
+            ui.spacing_mut().item_spacing.x = 9.0;
 
-            let (mark, _) = ui.allocate_exact_size(egui::vec2(34.0, 34.0), egui::Sense::hover());
+            let (mark, _) = ui.allocate_exact_size(egui::vec2(28.0, 28.0), egui::Sense::hover());
             let painter = ui.painter();
-            painter.rect_filled(mark, 9.0, p.accent);
-            icons::image(painter, mark.shrink(8.0), p.on_accent);
+            painter.rect_filled(mark, 7.0, p.accent);
+            icons::image(painter, mark.shrink(6.5), p.on_accent);
 
             ui.vertical(|ui| {
                 ui.spacing_mut().item_spacing.y = 0.0;
-                ui.label(theme::txt("ICO Converter", 15.5, Weight::SemiBold, p.text));
+                ui.label(theme::txt("ICO Converter", 13.5, Weight::SemiBold, p.text));
                 ui.label(theme::txt(
-                    "Minimal Windows icon builder · 16 – 512 px",
-                    11.0,
+                    "Multi-Resolution Icon Studio · 16–512 px",
+                    9.5,
                     Weight::Regular,
                     p.muted,
                 ));
@@ -29,13 +29,13 @@ pub fn show(app: &mut IcoConverterApp, ui: &mut egui::Ui) {
 
             ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                 let (rect, resp) =
-                    ui.allocate_exact_size(egui::vec2(30.0, 30.0), egui::Sense::click());
+                    ui.allocate_exact_size(egui::vec2(26.0, 26.0), egui::Sense::click());
                 let hovered = resp.hovered();
                 if hovered {
-                    ui.painter().rect_filled(rect, 8.0, p.surface_hover);
+                    ui.painter().rect_filled(rect, 6.0, p.surface_hover);
                 }
                 let color = if hovered { p.accent } else { p.muted };
-                icons::info(ui.painter(), rect.shrink(7.0), color);
+                icons::info(ui.painter(), rect.shrink(6.0), color);
                 resp.on_hover_text("About").clicked()
             })
             .inner

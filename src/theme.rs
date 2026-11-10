@@ -2,8 +2,8 @@
 
 use egui::{Color32, FontData, FontDefinitions, FontFamily, FontId, RichText, Rounding, Stroke};
 
-pub const RADIUS_CARD: f32 = 12.0;
-pub const RADIUS_CONTROL: f32 = 8.0;
+pub const RADIUS_CARD: f32 = 10.0;
+pub const RADIUS_CONTROL: f32 = 7.0;
 
 const FONT_REGULAR: &str = "Inter-Regular";
 const FONT_SEMI: &str = "Inter-SemiBold";
@@ -152,8 +152,8 @@ pub fn apply_visuals(ctx: &egui::Context) {
     ctx.set_visuals(v);
 
     let mut style = (*ctx.style()).clone();
-    style.spacing.item_spacing = egui::vec2(8.0, 10.0);
-    style.spacing.button_padding = egui::vec2(10.0, 6.0);
+    style.spacing.item_spacing = egui::vec2(7.0, 8.0);
+    style.spacing.button_padding = egui::vec2(9.0, 5.0);
     ctx.set_style(style);
 }
 
@@ -163,19 +163,19 @@ pub fn card() -> egui::Frame {
         .fill(PALETTE.surface)
         .rounding(Rounding::same(RADIUS_CARD))
         .stroke(Stroke::new(1.0_f32, PALETTE.border))
-        .inner_margin(egui::Margin::same(14.0))
+        .inner_margin(egui::Margin::same(12.0))
 }
 
 /// Compact outline button for secondary actions.
 pub fn secondary_button(label: &str) -> egui::Button<'static> {
-    egui::Button::new(txt(label, 11.5, Weight::SemiBold, PALETTE.text))
+    egui::Button::new(txt(label, 10.0, Weight::SemiBold, PALETTE.text))
         .fill(PALETTE.surface)
         .stroke(Stroke::new(1.0_f32, PALETTE.border_strong))
-        .rounding(Rounding::same(7.0))
-        .min_size(egui::vec2(0.0, 28.0))
+        .rounding(Rounding::same(6.0))
+        .min_size(egui::vec2(0.0, 24.0))
 }
 
-/// Borderless text action ("Select all", "Clear").
+/// Borderless text action ("All", "None").
 pub fn text_button(label: &str) -> egui::Button<'static> {
-    egui::Button::new(txt(label, 11.5, Weight::SemiBold, PALETTE.accent)).frame(false)
+    egui::Button::new(txt(label, 10.0, Weight::SemiBold, PALETTE.accent)).frame(false)
 }

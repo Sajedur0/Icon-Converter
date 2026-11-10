@@ -21,11 +21,15 @@ fn window_icon() -> Option<egui::IconData> {
 }
 
 fn main() -> eframe::Result<()> {
+    let size = [476.0, 512.0];
     let mut viewport = egui::ViewportBuilder::default()
         .with_app_id("com.sajedur0.ico-converter")
-        .with_inner_size([520.0, 610.0])
-        .with_min_inner_size([440.0, 540.0])
-        .with_resizable(true);
+        .with_inner_size(size)
+        .with_min_inner_size(size)
+        .with_max_inner_size(size)
+        .with_resizable(false)
+        .with_maximize_button(false)
+        .with_maximized(false);
 
     if let Some(icon) = window_icon() {
         viewport = viewport.with_icon(icon);
