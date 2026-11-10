@@ -1,6 +1,6 @@
-//! Minimal procedural vector icons drawn with `egui` primitives (zero icon-font bloat).
+//! Minimal procedural vector icons drawn with `egui` primitives.
 
-use egui::{Color32, Painter, Pos2, Rect, Stroke};
+use egui::{emath::GuiRounding, Color32, CornerRadius, Painter, Pos2, Rect, Stroke, StrokeKind};
 
 fn at(rect: Rect, x: f32, y: f32) -> Pos2 {
     egui::pos2(
@@ -14,7 +14,7 @@ fn scale(rect: Rect) -> f32 {
 }
 
 fn pen(rect: Rect, color: Color32, width: f32) -> Stroke {
-    Stroke::new((width * scale(rect)).max(0.8), color)
+    Stroke::new((width * scale(rect)).max(1.0), color)
 }
 
 fn ln(painter: &Painter, rect: Rect, a: (f32, f32), b: (f32, f32), stroke: Stroke) {
@@ -25,12 +25,17 @@ fn box_rect(rect: Rect, x0: f32, y0: f32, x1: f32, y1: f32) -> Rect {
     Rect::from_min_max(at(rect, x0, y0), at(rect, x1, y1))
 }
 
+fn scaled_radius(rect: Rect, r: f32) -> CornerRadius {
+    CornerRadius::same((r * scale(rect)).round().clamp(1.0, 32.0) as u8)
+}
+
 pub fn image(painter: &Painter, rect: Rect, color: Color32) {
     let s = pen(rect, color, 1.8);
     painter.rect_stroke(
         box_rect(rect, 3.0, 4.0, 21.0, 20.0),
-        egui::Rounding::same(3.0 * scale(rect)),
+        scaled_radius(rect, 3.0),
         s,
+        StrokeKind::Inside,
     );
     painter.circle_filled(at(rect, 8.5, 9.5), 1.6 * scale(rect), color);
     ln(painter, rect, (3.8, 17.0), (9.0, 11.5), s);
@@ -82,8 +87,9 @@ pub fn folder(painter: &Painter, rect: Rect, color: Color32) {
     let s = pen(rect, color, 1.7);
     painter.rect_stroke(
         box_rect(rect, 3.0, 6.0, 21.0, 19.5),
-        egui::Rounding::same(2.5 * scale(rect)),
+        scaled_radius(rect, 2.5),
         s,
+        StrokeKind::Inside,
     );
     ln(painter, rect, (3.0, 10.0), (21.0, 10.0), s);
     ln(painter, rect, (3.0, 6.0), (9.5, 6.0), s);
@@ -97,6 +103,7 @@ pub fn dashed_round_rect(
     dash: f32,
     gap: f32,
 ) {
+    let rect = rect.round_to_pixels(painter.pixels_per_point()).shrink(0.5);
     let r = radius
         .min(rect.width() / 2.0)
         .min(rect.height() / 2.0)

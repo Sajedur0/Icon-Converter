@@ -9,19 +9,19 @@ pub fn show(app: &mut IcoConverterApp, ui: &mut egui::Ui) {
 
     let info_clicked = ui
         .horizontal(|ui| {
-            ui.spacing_mut().item_spacing.x = 9.0;
+            ui.spacing_mut().item_spacing.x = 10.0;
 
-            let (mark, _) = ui.allocate_exact_size(egui::vec2(28.0, 28.0), egui::Sense::hover());
+            let (mark, _) = ui.allocate_exact_size(egui::vec2(32.0, 32.0), egui::Sense::hover());
             let painter = ui.painter();
-            painter.rect_filled(mark, 7.0, p.accent);
-            icons::image(painter, mark.shrink(6.5), p.on_accent);
+            theme::paint_box(painter, mark, 8, p.accent, None);
+            icons::image(painter, mark.shrink(7.0), p.on_accent);
 
             ui.vertical(|ui| {
-                ui.spacing_mut().item_spacing.y = 0.0;
-                ui.label(theme::txt("ICO Converter", 13.5, Weight::SemiBold, p.text));
+                ui.spacing_mut().item_spacing.y = 1.0;
+                ui.label(theme::txt("ICO Converter", 14.0, Weight::SemiBold, p.text));
                 ui.label(theme::txt(
                     "Multi-Resolution Icon Studio · 16–512 px",
-                    9.5,
+                    11.0,
                     Weight::Regular,
                     p.muted,
                 ));
@@ -29,10 +29,10 @@ pub fn show(app: &mut IcoConverterApp, ui: &mut egui::Ui) {
 
             ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                 let (rect, resp) =
-                    ui.allocate_exact_size(egui::vec2(26.0, 26.0), egui::Sense::click());
+                    ui.allocate_exact_size(egui::vec2(28.0, 28.0), egui::Sense::click());
                 let hovered = resp.hovered();
                 if hovered {
-                    ui.painter().rect_filled(rect, 6.0, p.surface_hover);
+                    theme::paint_box(ui.painter(), rect, 6, p.surface_hover, None);
                 }
                 let color = if hovered { p.accent } else { p.muted };
                 icons::info(ui.painter(), rect.shrink(6.0), color);

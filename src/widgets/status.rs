@@ -16,14 +16,14 @@ pub fn show(app: &mut IcoConverterApp, ui: &mut egui::Ui) {
         StatusKind::Error => (p.danger, p.danger_soft),
     };
 
-    let dismissed = egui::Frame::none()
+    let dismissed = egui::Frame::NONE
         .fill(background)
-        .rounding(7.0)
+        .corner_radius(egui::CornerRadius::same(7))
         .stroke(egui::Stroke::new(1.0_f32, accent))
-        .inner_margin(egui::Margin::symmetric(9.0, 6.0))
+        .inner_margin(egui::Margin::symmetric(10, 6))
         .show(ui, |ui| {
             ui.horizontal(|ui| {
-                ui.spacing_mut().item_spacing.x = 7.0;
+                ui.spacing_mut().item_spacing.x = 8.0;
                 let (badge, _) =
                     ui.allocate_exact_size(egui::vec2(16.0, 16.0), egui::Sense::hover());
                 let painter = ui.painter();
@@ -38,12 +38,12 @@ pub fn show(app: &mut IcoConverterApp, ui: &mut egui::Ui) {
                     ui.spacing_mut().item_spacing.y = 0.0;
                     ui.label(theme::txt(
                         status.message.clone(),
-                        10.5,
+                        11.5,
                         Weight::SemiBold,
                         accent,
                     ));
                     if let Some(detail) = &status.detail {
-                        ui.label(theme::txt(detail.clone(), 9.5, Weight::Regular, p.muted));
+                        ui.label(theme::txt(detail.clone(), 11.0, Weight::Regular, p.muted));
                     }
                 });
 

@@ -23,16 +23,16 @@ pub fn show(app: &mut IcoConverterApp, ui: &mut egui::Ui) {
     };
 
     ui.horizontal(|ui| {
-        ui.label(theme::txt(summary, 10.0, Weight::Regular, p.muted));
+        ui.label(theme::txt(summary, 11.0, Weight::Regular, p.muted));
         ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-            ui.label(theme::txt("Ctrl+Enter", 9.5, Weight::Regular, p.subtle));
+            ui.label(theme::txt("Ctrl+Enter", 11.0, Weight::Regular, p.subtle));
         });
     });
 
-    ui.add_space(5.0);
+    ui.add_space(6.0);
 
-    let (rect, resp) =
-        ui.allocate_exact_size(egui::vec2(ui.available_width(), 36.0), egui::Sense::click());
+    let width = ui.available_width().floor();
+    let (rect, resp) = ui.allocate_exact_size(egui::vec2(width, 38.0), egui::Sense::click());
     let hovered = resp.hovered() && can_convert;
     let fill = if !can_convert {
         p.border_strong
@@ -54,17 +54,17 @@ pub fn show(app: &mut IcoConverterApp, ui: &mut egui::Ui) {
     };
 
     let painter = ui.painter();
-    painter.rect_filled(rect, 8.0, fill);
+    theme::paint_box(painter, rect, 8, fill, None);
 
     let galley = painter.layout_no_wrap(
         label.to_owned(),
-        theme::font(11.5, Weight::SemiBold),
+        theme::font(12.5, Weight::SemiBold),
         foreground,
     );
-    let icon_side = 14.0;
+    let icon_side = 15.0;
     let gap = 7.0;
     let group_width = icon_side + gap + galley.size().x;
-    let start_x = rect.center().x - group_width * 0.5;
+    let start_x = (rect.center().x - group_width * 0.5).round();
 
     icons::download(
         painter,
@@ -74,14 +74,14 @@ pub fn show(app: &mut IcoConverterApp, ui: &mut egui::Ui) {
         ),
         foreground,
     );
-    painter.galley(
+    let text_pos = theme::snap_pos(
+        painter,
         egui::pos2(
             start_x + icon_side + gap,
             rect.center().y - galley.size().y * 0.5,
         ),
-        galley,
-        foreground,
     );
+    painter.galley(text_pos, galley, foreground);
 
     if resp.clicked() && can_convert {
         app.convert_and_save();
