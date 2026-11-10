@@ -222,8 +222,8 @@ impl IcoConverterApp {
     pub(crate) fn load_from_path(&mut self, ctx: &egui::Context, path: &Path) {
         if !utils::is_supported_extension(path) {
             self.set_error(
-                "Unsupported file type",
-                "Choose a PNG, JPG, WEBP, BMP, GIF, TIFF or ICO image.",
+                "Unsupported format",
+                "Supported: PNG, JPG, WEBP, BMP, GIF, TIFF, ICO.",
             );
             return;
         }
@@ -264,7 +264,7 @@ impl IcoConverterApp {
                     }))
                 }
                 Err(e) => Err(LoadError {
-                    title: "Couldn't open this image".to_owned(),
+                    title: "Import failed".to_owned(),
                     detail: format!("{e:#}"),
                 }),
             };
@@ -307,7 +307,7 @@ impl IcoConverterApp {
                     }))
                 }
                 Err(e) => Err(LoadError {
-                    title: "Couldn't open this image".to_owned(),
+                    title: "Import failed".to_owned(),
                     detail: format!("{e:#}"),
                 }),
             };
@@ -368,23 +368,20 @@ impl IcoConverterApp {
 
     pub(crate) fn convert_and_save(&mut self) {
         if self.loading_label.is_some() {
-            self.set_error(
-                "Still preparing image",
-                "Wait a moment for decoding to finish.",
-            );
+            self.set_error("Processing in progress", "Please wait a moment.");
             return;
         }
 
         let sizes = self.selected_sizes_vec();
         if sizes.is_empty() {
-            self.set_error("No sizes selected", "Pick at least one icon resolution.");
+            self.set_error("No size selected", "Enable at least one output size.");
             return;
         }
 
         let fit_mode = self.fit_mode;
         let (suggested, mode_set) = {
             let Some(src) = self.source.as_mut() else {
-                self.set_error("No image selected", "Add a source image first.");
+                self.set_error("No source image", "Import an image first.");
                 return;
             };
             let idx = fit_mode.index();
@@ -412,18 +409,18 @@ impl IcoConverterApp {
                 let count = sizes.len();
                 let noun = if count == 1 { "size" } else { "sizes" };
                 let detail = format!(
-                    "{}  ·  {}  ·  {}",
+                    "{} · {} · {}",
                     utils::short_path(&save_path),
                     utils::human_size(written_bytes),
                     utils::format_duration(elapsed),
                 );
                 self.set_status(
                     StatusKind::Success,
-                    &format!("Saved .ico ({count} {noun})"),
+                    &format!("Exported .ICO ({count} {noun})"),
                     Some(detail),
                 );
             }
-            Err(e) => self.set_error("Conversion failed", format!("{e:#}")),
+            Err(e) => self.set_error("Export failed", format!("{e:#}")),
         }
     }
 }
@@ -478,7 +475,7 @@ impl eframe::App for IcoConverterApp {
 
         let header_frame = egui::Frame::none()
             .fill(PALETTE.surface)
-            .inner_margin(egui::Margin::symmetric(18.0, 12.0))
+            .inner_margin(egui::Margin::symmetric(16.0, 9.0))
             .stroke(egui::Stroke::new(1.0_f32, PALETTE.border));
         egui::TopBottomPanel::top("app_header")
             .frame(header_frame)
@@ -489,7 +486,7 @@ impl eframe::App for IcoConverterApp {
 
         let footer_frame = egui::Frame::none()
             .fill(PALETTE.surface)
-            .inner_margin(egui::Margin::symmetric(18.0, 12.0))
+            .inner_margin(egui::Margin::symmetric(16.0, 9.0))
             .stroke(egui::Stroke::new(1.0_f32, PALETTE.border));
         egui::TopBottomPanel::bottom("app_footer")
             .frame(footer_frame)
@@ -501,11 +498,11 @@ impl eframe::App for IcoConverterApp {
 
         let content_frame = egui::Frame::none()
             .fill(PALETTE.bg)
-            .inner_margin(egui::Margin::symmetric(18.0, 14.0));
+            .inner_margin(egui::Margin::symmetric(16.0, 10.0));
         egui::CentralPanel::default()
             .frame(content_frame)
             .show(ctx, |ui| {
-                ui.spacing_mut().item_spacing = egui::vec2(8.0, 12.0);
+                ui.spacing_mut().item_spacing = egui::vec2(7.0, 10.0);
                 egui::ScrollArea::vertical().show(ui, |ui| {
                     widgets::drop_zone::show(self, ui, ctx, is_dragging);
                     widgets::sizes::show(self, ui, ctx);

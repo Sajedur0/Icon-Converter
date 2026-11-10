@@ -1,4 +1,4 @@
-//! Compact light-mode "About" dialog.
+//! Compact professional "About" dialog.
 
 use crate::app::IcoConverterApp;
 use crate::icons;
@@ -18,19 +18,19 @@ pub fn show(app: &mut IcoConverterApp, ctx: &egui::Context) {
             let backdrop =
                 ui.interact(screen, ui.id().with("about_backdrop"), egui::Sense::click());
 
-            let card = egui::Rect::from_center_size(screen.center(), egui::vec2(340.0, 320.0));
-            painter.rect_filled(card, 14.0, p.surface);
-            painter.rect_stroke(card, 14.0, egui::Stroke::new(1.0_f32, p.border));
+            let card = egui::Rect::from_center_size(screen.center(), egui::vec2(300.0, 266.0));
+            painter.rect_filled(card, 12.0, p.surface);
+            painter.rect_stroke(card, 12.0, egui::Stroke::new(1.0_f32, p.border));
 
             let close_clicked = ui
-                .allocate_ui_at_rect(card.shrink(18.0), |ui| {
-                    ui.spacing_mut().item_spacing = egui::vec2(6.0, 6.0);
+                .allocate_ui_at_rect(card.shrink(14.0), |ui| {
+                    ui.spacing_mut().item_spacing = egui::vec2(5.0, 5.0);
 
                     let x_clicked = ui
                         .with_layout(egui::Layout::right_to_left(egui::Align::Min), |ui| {
                             let (rect, resp) = ui
-                                .allocate_exact_size(egui::vec2(24.0, 24.0), egui::Sense::click());
-                            icons::close(ui.painter(), rect.shrink(5.5), p.muted);
+                                .allocate_exact_size(egui::vec2(20.0, 20.0), egui::Sense::click());
+                            icons::close(ui.painter(), rect.shrink(4.5), p.muted);
                             resp.clicked()
                         })
                         .inner;
@@ -38,55 +38,54 @@ pub fn show(app: &mut IcoConverterApp, ctx: &egui::Context) {
                     let button_clicked = ui
                         .vertical_centered(|ui| {
                             let (mark, _) = ui
-                                .allocate_exact_size(egui::vec2(44.0, 44.0), egui::Sense::hover());
+                                .allocate_exact_size(egui::vec2(36.0, 36.0), egui::Sense::hover());
                             let painter = ui.painter();
-                            painter.rect_filled(mark, 12.0, p.accent);
-                            icons::image(painter, mark.shrink(10.0), p.on_accent);
+                            painter.rect_filled(mark, 9.0, p.accent);
+                            icons::image(painter, mark.shrink(8.0), p.on_accent);
 
-                            ui.add_space(4.0);
-                            ui.label(theme::txt("ICO Converter", 17.0, Weight::SemiBold, p.text));
+                            ui.add_space(2.0);
+                            ui.label(theme::txt("ICO Converter", 13.5, Weight::SemiBold, p.text));
                             ui.label(theme::txt(
-                                format!("v{}  ·  Minimal Light Edition", env!("CARGO_PKG_VERSION")),
-                                11.0,
+                                format!(
+                                    "v{} · Professional Icon Utility",
+                                    env!("CARGO_PKG_VERSION")
+                                ),
+                                9.5,
                                 Weight::Regular,
                                 p.muted,
                             ));
-                            ui.add_space(8.0);
+                            ui.add_space(6.0);
 
                             egui::Frame::none()
                                 .fill(p.surface_alt)
-                                .rounding(8.0)
-                                .inner_margin(egui::Margin::symmetric(10.0, 8.0))
+                                .rounding(7.0)
+                                .inner_margin(egui::Margin::symmetric(10.0, 7.0))
                                 .show(ui, |ui| {
-                                    ui.spacing_mut().item_spacing = egui::vec2(6.0, 5.0);
-                                    info_row(ui, "Developer", "Sajedur Rahman Roni");
-                                    info_row(ui, "Resolutions", "16 – 512 px (8 sizes)");
-                                    info_row(
-                                        ui,
-                                        "Formats",
-                                        "PNG · JPG · WEBP · BMP · GIF · TIFF · ICO",
-                                    );
+                                    ui.spacing_mut().item_spacing = egui::vec2(5.0, 4.0);
+                                    info_row(ui, "Author", "Sajedur Rahman Roni");
+                                    info_row(ui, "Output", "16–512 px · 32-bit ICO");
+                                    info_row(ui, "Engine", "Linear-Light Lanczos3");
                                     info_row(ui, "License", "MIT");
                                 });
 
-                            ui.add_space(6.0);
+                            ui.add_space(5.0);
                             ui.hyperlink_to(
-                                theme::txt("github.com/Sajedur0", 11.5, Weight::SemiBold, p.accent),
+                                theme::txt("github.com/Sajedur0", 10.0, Weight::SemiBold, p.accent),
                                 "https://github.com/Sajedur0",
                             );
 
-                            ui.add_space(8.0);
-                            let close = egui::Button::new(theme::txt(
-                                "Close",
-                                12.5,
+                            ui.add_space(6.0);
+                            let done = egui::Button::new(theme::txt(
+                                "Done",
+                                10.5,
                                 Weight::SemiBold,
                                 p.on_accent,
                             ))
                             .fill(p.accent)
                             .stroke(egui::Stroke::NONE)
-                            .rounding(8.0)
-                            .min_size(egui::vec2(120.0, 32.0));
-                            ui.add(close).clicked()
+                            .rounding(7.0)
+                            .min_size(egui::vec2(96.0, 28.0));
+                            ui.add(done).clicked()
                         })
                         .inner;
 
@@ -107,9 +106,9 @@ pub fn show(app: &mut IcoConverterApp, ctx: &egui::Context) {
 
 fn info_row(ui: &mut egui::Ui, key: &str, value: &str) {
     ui.horizontal(|ui| {
-        ui.label(theme::txt(key, 11.0, Weight::Regular, PALETTE.muted));
+        ui.label(theme::txt(key, 10.0, Weight::Regular, PALETTE.muted));
         ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-            ui.label(theme::txt(value, 11.0, Weight::SemiBold, PALETTE.text));
+            ui.label(theme::txt(value, 10.0, Weight::SemiBold, PALETTE.text));
         });
     });
 }
