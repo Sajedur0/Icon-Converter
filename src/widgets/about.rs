@@ -24,7 +24,7 @@ pub fn show(app: &mut IcoConverterApp, ctx: &egui::Context, p: &Palette) {
                 egui::vec2(380.0, 372.0),
             );
             painter.rect_filled(card, 18.0, p.surface);
-            painter.rect_stroke(card, 18.0, egui::Stroke::new(1.0, p.border));
+            painter.rect_stroke(card, 18.0, egui::Stroke::new(1.0_f32, p.border));
 
             let close_clicked = ui
                 .allocate_ui_at_rect(card.shrink(22.0), |ui| {

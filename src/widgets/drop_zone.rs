@@ -45,7 +45,7 @@ fn empty(
     painter.rect_filled(rect, 12.0, fill);
 
     let border = egui::Stroke::new(
-        if is_dragging { 2.0 } else { 1.4 },
+        if is_dragging { 2.0_f32 } else { 1.4_f32 },
         if is_dragging {
             p.accent
         } else {
@@ -79,7 +79,7 @@ fn empty(
         egui::vec2(158.0, 34.0),
     );
     painter.rect_filled(button, 8.0, p.surface);
-    painter.rect_stroke(button, 8.0, egui::Stroke::new(1.0, p.border_strong));
+    painter.rect_stroke(button, 8.0, egui::Stroke::new(1.0_f32, p.border_strong));
     icons::folder(
         painter,
         egui::Rect::from_center_size(
@@ -130,7 +130,7 @@ fn loaded(app: &mut IcoConverterApp, ui: &mut egui::Ui, ctx: &egui::Context, p: 
     let (preview_rect, _) = ui.allocate_exact_size(egui::vec2(width, 174.0), egui::Sense::hover());
     let painter = ui.painter();
     painter.rect_filled(preview_rect, 12.0, p.surface_alt);
-    painter.rect_stroke(preview_rect, 12.0, egui::Stroke::new(1.0, p.border));
+    painter.rect_stroke(preview_rect, 12.0, egui::Stroke::new(1.0_f32, p.border));
 
     if let Some((tex_id, img_size)) = texture {
         let inner = preview_rect.shrink(16.0);
@@ -148,7 +148,7 @@ fn loaded(app: &mut IcoConverterApp, ui: &mut egui::Ui, ctx: &egui::Context, p: 
             egui::Rect::from_min_max(egui::Pos2::ZERO, egui::pos2(1.0, 1.0)),
             egui::Color32::WHITE,
         );
-        painter.rect_stroke(img_rect, 3.0, egui::Stroke::new(1.0, p.border_strong));
+        painter.rect_stroke(img_rect, 3.0, egui::Stroke::new(1.0_f32, p.border_strong));
     }
 
     // ---- File details --------------------------------------------------
@@ -218,7 +218,7 @@ fn loaded(app: &mut IcoConverterApp, ui: &mut egui::Ui, ctx: &egui::Context, p: 
             let (tile, _) = ui.allocate_exact_size(egui::vec2(72.0, 86.0), egui::Sense::hover());
             let painter = ui.painter();
             painter.rect_filled(tile, 10.0, p.surface_alt);
-            painter.rect_stroke(tile, 10.0, egui::Stroke::new(1.0, p.border));
+            painter.rect_stroke(tile, 10.0, egui::Stroke::new(1.0_f32, p.border));
 
             let side = size as f32;
             let icon_rect = egui::Rect::from_center_size(
@@ -236,7 +236,7 @@ fn loaded(app: &mut IcoConverterApp, ui: &mut egui::Ui, ctx: &egui::Context, p: 
                     egui::Color32::WHITE,
                 );
             }
-            painter.rect_stroke(icon_rect, 2.0, egui::Stroke::new(1.0, p.border_strong));
+            painter.rect_stroke(icon_rect, 2.0, egui::Stroke::new(1.0_f32, p.border_strong));
             painter.text(
                 egui::pos2(tile.center().x, tile.bottom() - 11.0),
                 egui::Align2::CENTER_CENTER,

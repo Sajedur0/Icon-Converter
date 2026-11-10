@@ -199,7 +199,7 @@ pub fn apply_visuals(ctx: &egui::Context, p: &Palette) {
 
     v.panel_fill = p.bg;
     v.window_fill = p.surface;
-    v.window_stroke = Stroke::new(1.0, p.border);
+    v.window_stroke = Stroke::new(1.0_f32, p.border);
     v.window_rounding = Rounding::same(RADIUS_CARD);
     v.window_shadow = egui::Shadow {
         offset: egui::vec2(0.0, 10.0),
@@ -213,7 +213,7 @@ pub fn apply_visuals(ctx: &egui::Context, p: &Palette) {
     v.override_text_color = Some(p.text);
     v.hyperlink_color = p.accent;
     v.selection.bg_fill = p.accent_soft;
-    v.selection.stroke = Stroke::new(1.0, p.accent);
+    v.selection.stroke = Stroke::new(1.0_f32, p.accent);
 
     let corner = Rounding::same(RADIUS_CONTROL);
     v.widgets.noninteractive.rounding = corner;
@@ -223,19 +223,19 @@ pub fn apply_visuals(ctx: &egui::Context, p: &Palette) {
 
     v.widgets.noninteractive.bg_fill = p.surface_alt;
     v.widgets.noninteractive.weak_bg_fill = p.surface_alt;
-    v.widgets.noninteractive.fg_stroke = Stroke::new(1.0, p.muted);
+    v.widgets.noninteractive.fg_stroke = Stroke::new(1.0_f32, p.muted);
     v.widgets.inactive.bg_fill = p.surface_alt;
     v.widgets.inactive.weak_bg_fill = p.surface;
-    v.widgets.inactive.bg_stroke = Stroke::new(1.0, p.border);
-    v.widgets.inactive.fg_stroke = Stroke::new(1.0, p.text);
+    v.widgets.inactive.bg_stroke = Stroke::new(1.0_f32, p.border);
+    v.widgets.inactive.fg_stroke = Stroke::new(1.0_f32, p.text);
     v.widgets.hovered.bg_fill = p.surface_hover;
     v.widgets.hovered.weak_bg_fill = p.surface_hover;
-    v.widgets.hovered.bg_stroke = Stroke::new(1.0, p.border_strong);
-    v.widgets.hovered.fg_stroke = Stroke::new(1.0, p.accent);
+    v.widgets.hovered.bg_stroke = Stroke::new(1.0_f32, p.border_strong);
+    v.widgets.hovered.fg_stroke = Stroke::new(1.0_f32, p.accent);
     v.widgets.active.bg_fill = p.accent_soft;
     v.widgets.active.weak_bg_fill = p.accent_soft;
-    v.widgets.active.bg_stroke = Stroke::new(1.0, p.accent);
-    v.widgets.active.fg_stroke = Stroke::new(1.0, p.accent);
+    v.widgets.active.bg_stroke = Stroke::new(1.0_f32, p.accent);
+    v.widgets.active.fg_stroke = Stroke::new(1.0_f32, p.accent);
 
     ctx.set_visuals(v);
 
@@ -250,7 +250,7 @@ pub fn card(p: &Palette) -> egui::Frame {
     egui::Frame::none()
         .fill(p.surface)
         .rounding(Rounding::same(RADIUS_CARD))
-        .stroke(Stroke::new(1.0, p.border))
+        .stroke(Stroke::new(1.0_f32, p.border))
         .shadow(egui::Shadow {
             offset: egui::vec2(0.0, 3.0),
             blur: 12.0,
@@ -264,7 +264,7 @@ pub fn card(p: &Palette) -> egui::Frame {
 pub fn secondary_button(label: &str, p: &Palette) -> egui::Button<'static> {
     egui::Button::new(txt(label, 12.0, Weight::SemiBold, p.text))
         .fill(p.surface)
-        .stroke(Stroke::new(1.0, p.border_strong))
+        .stroke(Stroke::new(1.0_f32, p.border_strong))
         .rounding(Rounding::same(8.0))
         .min_size(egui::vec2(0.0, 32.0))
 }

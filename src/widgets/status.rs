@@ -18,7 +18,7 @@ pub fn show(app: &mut IcoConverterApp, ui: &mut egui::Ui, p: &Palette) {
     let dismissed = egui::Frame::none()
         .fill(background)
         .rounding(9.0)
-        .stroke(egui::Stroke::new(1.0, accent))
+        .stroke(egui::Stroke::new(1.0_f32, accent))
         .inner_margin(egui::Margin::symmetric(12.0, 10.0))
         .show(ui, |ui| {
             ui.horizontal(|ui| {

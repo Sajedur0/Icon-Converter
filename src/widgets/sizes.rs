@@ -81,7 +81,7 @@ pub fn show(app: &mut IcoConverterApp, ui: &mut egui::Ui, p: &Palette) {
                         painter.rect_stroke(
                             rect,
                             9.0,
-                            egui::Stroke::new(if is_selected { 1.5 } else { 1.0 }, border),
+                            egui::Stroke::new(if is_selected { 1.5_f32 } else { 1.0_f32 }, border),
                         );
 
                         let text_color = if is_selected { p.accent } else { p.text };
@@ -150,7 +150,7 @@ fn fit_control(ui: &mut egui::Ui, p: &Palette, current: FitMode) -> Option<FitMo
     let (outer, _) = ui.allocate_exact_size(egui::vec2(width, 38.0), egui::Sense::hover());
     let painter = ui.painter();
     painter.rect_filled(outer, 10.0, p.surface_alt);
-    painter.rect_stroke(outer, 10.0, egui::Stroke::new(1.0, p.border));
+    painter.rect_stroke(outer, 10.0, egui::Stroke::new(1.0_f32, p.border));
 
     let half = (outer.width() - 8.0) / 2.0;
     let options = [
@@ -173,7 +173,7 @@ fn fit_control(ui: &mut egui::Ui, p: &Palette, current: FitMode) -> Option<FitMo
 
         if active {
             painter.rect_filled(rect, 7.0, p.surface);
-            painter.rect_stroke(rect, 7.0, egui::Stroke::new(1.0, p.border_strong));
+            painter.rect_stroke(rect, 7.0, egui::Stroke::new(1.0_f32, p.border_strong));
         } else if resp.hovered() {
             painter.rect_filled(rect, 7.0, p.surface_hover);
         }
