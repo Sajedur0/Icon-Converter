@@ -13,11 +13,10 @@ ico = "0.3"
 anyhow = "1.0"
 
 [profile.release]
-opt-level = "z"
-lto = true
+opt-level = 0
 strip = true
 panic = "abort"
-codegen-units = 1
+codegen-units = 16
 
 [[bin]]
 name = "ico_converter"

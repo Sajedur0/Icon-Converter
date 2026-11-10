@@ -14,10 +14,12 @@ fn window_icon() -> Option<egui::IconData> {
     let decoder = image::codecs::ico::IcoDecoder::new(std::io::Cursor::new(bytes)).ok()?;
     let image = image::DynamicImage::from_decoder(decoder).ok()?;
     let rgba = image.to_rgba8();
+    let (width, height) = (rgba.width(), rgba.height());
+    let raw = rgba.into_raw();
     Some(egui::IconData {
-        rgba: rgba.into_raw(),
-        width: rgba.width(),
-        height: rgba.height(),
+        rgba: raw,
+        width,
+        height,
     })
 }
 
