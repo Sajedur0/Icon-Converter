@@ -1,4 +1,4 @@
-name: Release
+name: Windows Release
 
 on:
   push:
@@ -6,25 +6,12 @@ on:
       - 'v*'
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  build:
-    name: Build (${{ matrix.os }})
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - os: ubuntu-latest
-            target: x86_64-unknown-linux-gnu
-            asset: ico-converter-linux-x86_64
-          - os: windows-latest
-            target: x86_64-pc-windows-msvc
-            asset: ico-converter-windows-x86_64.exe
-          - os: macos-latest
-            target: x86_64-apple-darwin
-            asset: ico-converter-macos-x86_64
+  release:
+    name: Build and publish Windows executable
+    runs-on: windows-latest
 
     steps:
       - name: Check out source
@@ -33,44 +20,20 @@ jobs:
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
-          targets: ${{ matrix.target }}
+          targets: x86_64-pc-windows-msvc
 
-      - name: Build release binary
-        run: cargo build --locked --release --target ${{ matrix.target }}
+      - name: Build release executable
+        run: cargo build --locked --release --target x86_64-pc-windows-msvc
 
-      - name: Rename binary (Windows)
-        if: runner.os == 'Windows'
+      - name: Put executable in release folder
         shell: pwsh
-        run: Copy-Item "target/${{ matrix.target }}/release/ico_converter.exe" "${{ matrix.asset }}"
+        run: |
+          New-Item -ItemType Directory -Force -Path release | Out-Null
+          Copy-Item target/x86_64-pc-windows-msvc/release/ico_converter.exe release/ico_converter.exe
 
-      - name: Rename binary (Linux and macOS)
-        if: runner.os != 'Windows'
-        shell: bash
-        run: cp "target/${{ matrix.target }}/release/ico_converter" "${{ matrix.asset }}"
-
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.asset }}
-          path: ${{ matrix.asset }}
-          if-no-files-found: error
-          retention-days: 1
-
-  release:
-    name: Publish GitHub Release
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: dist
-          merge-multiple: true
-
-      - name: Create release and upload binaries
+      - name: Publish executable with generated changelog
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
-          files: dist/*
+          files: release/ico_converter.exe
+          generate_release_notes: true
