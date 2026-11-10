@@ -79,7 +79,7 @@ pub struct IcoConverterApp {
 }
 
 fn checker_texture(ctx: &egui::Context) -> egui::TextureHandle {
-    let mut image = egui::ColorImage::new([16, 16], egui::Color32::TRANSPARENT);
+    let mut image = egui::ColorImage::filled([16, 16], egui::Color32::TRANSPARENT);
     for y in 0..16 {
         for x in 0..16 {
             image[(x, y)] = if (x / 8 + y / 8) % 2 == 0 {
@@ -473,9 +473,9 @@ impl eframe::App for IcoConverterApp {
             self.handle_file_pick(ctx);
         }
 
-        let header_frame = egui::Frame::none()
+        let header_frame = egui::Frame::NONE
             .fill(PALETTE.surface)
-            .inner_margin(egui::Margin::symmetric(16.0, 9.0))
+            .inner_margin(egui::Margin::symmetric(16, 10))
             .stroke(egui::Stroke::new(1.0_f32, PALETTE.border));
         egui::TopBottomPanel::top("app_header")
             .frame(header_frame)
@@ -484,9 +484,9 @@ impl eframe::App for IcoConverterApp {
                 widgets::header::show(self, ui);
             });
 
-        let footer_frame = egui::Frame::none()
+        let footer_frame = egui::Frame::NONE
             .fill(PALETTE.surface)
-            .inner_margin(egui::Margin::symmetric(16.0, 9.0))
+            .inner_margin(egui::Margin::symmetric(16, 10))
             .stroke(egui::Stroke::new(1.0_f32, PALETTE.border));
         egui::TopBottomPanel::bottom("app_footer")
             .frame(footer_frame)
@@ -496,13 +496,13 @@ impl eframe::App for IcoConverterApp {
                 widgets::footer::show(self, ui);
             });
 
-        let content_frame = egui::Frame::none()
+        let content_frame = egui::Frame::NONE
             .fill(PALETTE.bg)
-            .inner_margin(egui::Margin::symmetric(16.0, 10.0));
+            .inner_margin(egui::Margin::symmetric(16, 10));
         egui::CentralPanel::default()
             .frame(content_frame)
             .show(ctx, |ui| {
-                ui.spacing_mut().item_spacing = egui::vec2(7.0, 10.0);
+                ui.spacing_mut().item_spacing = egui::vec2(8.0, 10.0);
                 egui::ScrollArea::vertical().show(ui, |ui| {
                     widgets::drop_zone::show(self, ui, ctx, is_dragging);
                     widgets::sizes::show(self, ui, ctx);
