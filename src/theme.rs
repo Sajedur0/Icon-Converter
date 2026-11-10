@@ -129,7 +129,7 @@ pub fn install_fonts(ctx: &egui::Context) {
         FontData::from_static(include_bytes!("../assets/fonts/Inter-Bold.ttf")),
     );
 
-    let emoji = vec!["NotoEmoji-Regular".to_owned(), "emoji-icon-font".to_owned()];
+    let emoji = ["NotoEmoji-Regular".to_owned(), "emoji-icon-font".to_owned()];
 
     let mut proportional = vec![
         FONT_REGULAR.to_owned(),
@@ -172,10 +172,17 @@ pub fn install_fonts(ctx: &egui::Context) {
 }
 
 pub fn family(weight: Weight) -> FontFamily {
+    static SEMI: std::sync::OnceLock<FontFamily> = std::sync::OnceLock::new();
+    static BOLD: std::sync::OnceLock<FontFamily> = std::sync::OnceLock::new();
+
     match weight {
         Weight::Regular => FontFamily::Proportional,
-        Weight::SemiBold => FontFamily::Name(FONT_SEMI.into()),
-        Weight::Bold => FontFamily::Name(FONT_BOLD.into()),
+        Weight::SemiBold => SEMI
+            .get_or_init(|| FontFamily::Name(FONT_SEMI.into()))
+            .clone(),
+        Weight::Bold => BOLD
+            .get_or_init(|| FontFamily::Name(FONT_BOLD.into()))
+            .clone(),
     }
 }
 

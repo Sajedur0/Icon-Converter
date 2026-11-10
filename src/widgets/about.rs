@@ -21,7 +21,7 @@ pub fn show(app: &mut IcoConverterApp, ctx: &egui::Context, p: &Palette) {
 
             let card = egui::Rect::from_center_size(
                 screen.center(),
-                egui::vec2(380.0, 372.0),
+                egui::vec2(380.0, 392.0),
             );
             painter.rect_filled(card, 18.0, p.surface);
             painter.rect_stroke(card, 18.0, egui::Stroke::new(1.0_f32, p.border));
@@ -87,11 +87,12 @@ pub fn show(app: &mut IcoConverterApp, ctx: &egui::Context, p: &Palette) {
                                     ui.spacing_mut().item_spacing =
                                         egui::vec2(6.0, 6.0);
                                     info_row(ui, p, "Developer", "Sajedur Rahman Roni");
+                                    info_row(ui, p, "Resolutions", "16 – 512 px (8 sizes)");
                                     info_row(
                                         ui,
                                         p,
                                         "Formats",
-                                        "PNG · JPG · WEBP · BMP · GIF · TIFF",
+                                        "PNG · JPG · WEBP · BMP · GIF · TIFF · ICO",
                                     );
                                     info_row(ui, p, "License", "MIT");
                                 });
@@ -129,7 +130,7 @@ pub fn show(app: &mut IcoConverterApp, ctx: &egui::Context, p: &Palette) {
             let outside_clicked = backdrop.clicked()
                 && backdrop
                     .interact_pointer_pos()
-                    .map_or(false, |pos| !card.contains(pos));
+                    .is_some_and(|pos| !card.contains(pos));
 
             if close_clicked || outside_clicked {
                 app.show_about = false;

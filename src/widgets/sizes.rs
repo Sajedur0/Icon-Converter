@@ -1,23 +1,22 @@
-//! Resolution picker and aspect-ratio handling.
+//! Resolution picker (16 × 16 through 512 × 512) and aspect-ratio handling.
 //!
-//! The widget works on a local snapshot of the selection and returns the new
-//! state at the end of the frame. That keeps every nested `Ui` closure free of
-//! mutable borrows of the application struct.
+//! Operates on a stack-allocated `[bool; 8]` snapshot so nested `Ui` closures
+//! never hold mutable borrows of `IcoConverterApp` or allocate on the heap.
 
 use crate::app::IcoConverterApp;
 use crate::converter::{self, FitMode};
 use crate::icons;
 use crate::theme::{self, Palette, Weight};
-use std::collections::HashSet;
 
 const COLUMNS: usize = 4;
 
-pub fn show(app: &mut IcoConverterApp, ui: &mut egui::Ui, p: &Palette) {
-    let mut selected: HashSet<u32> = app.selected_sizes.clone();
-    let mut fit_mode = app.fit_mode;
+pub fn show(app: &mut IcoConverterApp, ui: &mut egui::Ui, ctx: &egui::Context, p: &Palette) {
+    let mut selected = app.selected_sizes;
+    let current_mode = app.fit_mode;
+    let mut next_mode = None;
 
     theme::card(p).show(ui, |ui| {
-        ui.spacing_mut().item_spacing = egui::vec2(8.0, 10.0);
+        ui.spacing_mut().item_spacing = egui::vec2(8.0, 8.0);
 
         // ---- Helper actions --------------------------------------------
         let (clear_clicked, all_clicked) = ui
@@ -38,28 +37,30 @@ pub fn show(app: &mut IcoConverterApp, ui: &mut egui::Ui, p: &Palette) {
             })
             .inner;
         if clear_clicked {
-            selected.clear();
+            selected = [false; converter::AVAILABLE_SIZES.len()];
         }
         if all_clicked {
-            selected = converter::AVAILABLE_SIZES.iter().copied().collect();
+            selected = [true; converter::AVAILABLE_SIZES.len()];
         }
 
-        // ---- Chips -------------------------------------------------------
+        // ---- 2 × 4 Resolution chips (16 ..= 512) -----------------------
         let width = ui.available_width();
         let gap = 8.0;
         let chip_width = (width - gap * (COLUMNS - 1) as f32) / COLUMNS as f32;
 
-        for row in converter::AVAILABLE_SIZES.chunks(COLUMNS) {
+        for (row_idx, row) in converter::AVAILABLE_SIZES.chunks(COLUMNS).enumerate() {
+            let base_idx = row_idx * COLUMNS;
             let toggled = ui
                 .horizontal(|ui| {
                     ui.spacing_mut().item_spacing.x = gap;
-                    let mut clicked_sizes: Vec<u32> = Vec::new();
-                    for &size in row {
+                    let mut clicked_indices: Vec<usize> = Vec::new();
+                    for (col_idx, &size) in row.iter().enumerate() {
+                        let slot_idx = base_idx + col_idx;
                         let (rect, resp) = ui.allocate_exact_size(
                             egui::vec2(chip_width, 40.0),
                             egui::Sense::click(),
                         );
-                        let is_selected = selected.contains(&size);
+                        let is_selected = selected[slot_idx];
                         let hovered = resp.hovered();
                         let painter = ui.painter();
 
@@ -109,40 +110,42 @@ pub fn show(app: &mut IcoConverterApp, ui: &mut egui::Ui, p: &Palette) {
                         }
 
                         if resp.clicked() {
-                            clicked_sizes.push(size);
+                            clicked_indices.push(slot_idx);
                         }
                     }
-                    clicked_sizes
+                    clicked_indices
                 })
                 .inner;
-            for size in toggled {
-                if !selected.remove(&size) {
-                    selected.insert(size);
-                }
+            for idx in toggled {
+                selected[idx] = !selected[idx];
             }
-            ui.add_space(gap);
         }
 
-        // ---- Aspect ratio ------------------------------------------------
-        ui.add_space(2.0);
+        // ---- Aspect ratio / framing ------------------------------------
+        ui.add_space(4.0);
         ui.horizontal(|ui| {
             ui.spacing_mut().item_spacing.x = 8.0;
             let (icon_rect, _) =
                 ui.allocate_exact_size(egui::vec2(18.0, 18.0), egui::Sense::hover());
             icons::layers(ui.painter(), icon_rect, p.muted);
-            ui.label(theme::txt("Aspect ratio", 12.0, Weight::SemiBold, p.text));
+            ui.label(theme::txt("Framing", 12.0, Weight::SemiBold, p.text));
             ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                ui.label(theme::txt(fit_mode.hint(), 11.0, Weight::Regular, p.muted));
+                ui.label(theme::txt(
+                    current_mode.hint(),
+                    11.0,
+                    Weight::Regular,
+                    p.muted,
+                ));
             });
         });
 
-        if let Some(mode) = fit_control(ui, p, fit_mode) {
-            fit_mode = mode;
-        }
+        next_mode = fit_control(ui, p, current_mode);
     });
 
     app.selected_sizes = selected;
-    app.fit_mode = fit_mode;
+    if let Some(mode) = next_mode {
+        app.set_fit_mode(ctx, mode);
+    }
 }
 
 fn fit_control(ui: &mut egui::Ui, p: &Palette, current: FitMode) -> Option<FitMode> {
@@ -152,24 +155,21 @@ fn fit_control(ui: &mut egui::Ui, p: &Palette, current: FitMode) -> Option<FitMo
     painter.rect_filled(outer, 10.0, p.surface_alt);
     painter.rect_stroke(outer, 10.0, egui::Stroke::new(1.0_f32, p.border));
 
-    let half = (outer.width() - 8.0) / 2.0;
-    let options = [
-        (FitMode::Cover, FitMode::Cover.label()),
-        (FitMode::Contain, FitMode::Contain.label()),
-    ];
+    let count = FitMode::ALL.len() as f32;
+    let seg_width = (outer.width() - 8.0) / count;
 
     let mut chosen = None;
-    for (index, (mode, label)) in options.iter().enumerate() {
+    for (index, &mode) in FitMode::ALL.iter().enumerate() {
         let rect = egui::Rect::from_min_size(
-            outer.min + egui::vec2(4.0 + index as f32 * half, 4.0),
-            egui::vec2(half, 30.0),
+            outer.min + egui::vec2(4.0 + index as f32 * seg_width, 4.0),
+            egui::vec2(seg_width, 30.0),
         );
         let resp = ui.interact(
             rect,
             ui.id().with(("fit_mode", index)),
             egui::Sense::click(),
         );
-        let active = current == *mode;
+        let active = current == mode;
 
         if active {
             painter.rect_filled(rect, 7.0, p.surface);
@@ -187,13 +187,13 @@ fn fit_control(ui: &mut egui::Ui, p: &Palette, current: FitMode) -> Option<FitMo
         painter.text(
             rect.center(),
             egui::Align2::CENTER_CENTER,
-            *label,
+            mode.label(),
             theme::font(12.0, weight),
             color,
         );
 
         if resp.clicked() {
-            chosen = Some(*mode);
+            chosen = Some(mode);
         }
     }
     chosen
