@@ -24,6 +24,7 @@ Thumbs.db
 
 # Rust
 /target/
+/target-build-check/
 .cargo/
 
 # Temp files
