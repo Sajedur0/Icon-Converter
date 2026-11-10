@@ -22,8 +22,9 @@ A complete UI redesign built around a small, consistent design system:
 - 🎨 **Professional light & dark themes** — one palette of design tokens, switched instantly from the header.
 - 🔤 **Bundled Inter typeface** (regular / semibold / bold) — identical typography on every machine, no font installation needed.
 - 🧩 **Card-based, numbered workflow** — Source image → Icon sizes → Export, with a sticky action bar.
-- 🖼️ **Live preview** on a transparency checkerboard, plus a ruler showing the icon at 16 / 24 / 32 / 48 / 64 px.
-- 📏 **Aspect-ratio control** — *Fill & crop* (centre-crop) or *Fit & pad* (transparent letterbox), so non-square images never get squashed.
+- 🖼️ **Pixel-accurate live preview** on a transparency checkerboard, plus a live ruler showing the exact resampled icon at 16 / 24 / 32 / 48 / 64 px.
+- 📏 **Framing control** — *Fill & crop* (centre-crop), *Fit & pad* (transparent letterbox), or *Trim & fit* (removes transparent outer margins first).
+- ⚡ **Ultra-fast parallel engine** — multi-threaded premultiplied linear-light Lanczos3 resampling and pre-encoded `.ico` caching for sub-millisecond exports.
 - 🖱️ **Drag & drop anywhere** in the window, browse dialog, `Replace` / `Remove` actions and in-memory drops.
 - 🎯 **Crisp vector icons** drawn at runtime (no emoji, no missing-glyph boxes).
 - 🔔 **Inline success / error notifications** with dismiss, and a helpful About dialog.
@@ -34,11 +35,11 @@ A complete UI redesign built around a small, consistent design system:
 
 | Feature | Detail |
 |---------|--------|
-| Input | PNG · JPG · JPEG · BMP · GIF · WEBP · TIFF · TIF |
-| Output | Single `.ico` containing every selected resolution |
-| Sizes | 16, 24, 32, 48, 64, 128, 256 px (toggle independently) |
-| Resampling | Lanczos3, high quality |
-| Transparency | Alpha channel preserved end-to-end |
+| Input | PNG · APNG · JPG · JPEG · BMP · GIF · WEBP · TIFF · ICO · TGA · QOI (magic-byte + EXIF orientation aware) |
+| Output | Spec-compliant multi-resolution `.ico` (32-bpp BGRA DIB `< 256 px`, 32-bpp RGBA8 PNG `256 & 512 px`) |
+| Sizes | 16, 24, 32, 48, 64, 128, 256, 512 px (toggle independently) |
+| Resampling | Premultiplied linear-light Lanczos3 (halo-free, gamma-accurate) |
+| Transparency | Alpha channel preserved end-to-end without dark edge fringes |
 | Shortcuts | `Ctrl+O` browse · `Ctrl+Enter` export · `Esc` close dialog |
 | Default filename | Derived from the source file (`photo.png` → `photo.ico`) |
 
@@ -60,7 +61,7 @@ cargo build --release     # optimised binary in target/release/
 ### Usage
 
 1. **Drop an image** onto the window, click the dashed area, or press `Ctrl+O`.
-2. **Pick resolutions** (all seven are selected by default) and choose how non-square images should be fitted.
+2. **Pick resolutions** (all eight — 16 up to 512 px — are selected by default) and choose how images should be framed.
 3. Click **Convert & Save ICO**, choose a destination, done. ✅
 
 ---
@@ -115,7 +116,7 @@ same colour tokens and bundled Inter fonts as the egui implementation.
 - **[winres](https://github.com/mxre/winres)** — Windows executable icon
 - **Inter** by Rasmus Andersson — SIL Open Font License 1.1
 
-The release profile stays tuned for a small binary (`opt-level = "z"`, LTO, strip, `panic = "abort"`).
+The release profile is tuned for maximum native speed (`opt-level = 3`, thin LTO, `codegen-units = 1`, `strip = true`, `panic = "abort"`).
 
 ---
 
