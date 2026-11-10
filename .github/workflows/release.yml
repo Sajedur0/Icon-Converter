@@ -35,5 +35,6 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
+          name: Icon Converter ${{ github.ref_name }}
           files: release/ico_converter.exe
           generate_release_notes: true
