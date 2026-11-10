@@ -1,20 +1,17 @@
-//! Sticky bottom bar: live export summary and the primary action.
+//! Minimal bottom action bar: live output summary and primary export button.
 
 use crate::app::IcoConverterApp;
 use crate::icons;
-use crate::theme::{self, Palette, Weight};
+use crate::theme::{self, Weight, PALETTE};
 use crate::utils;
 
-pub fn show(app: &mut IcoConverterApp, ui: &mut egui::Ui, p: &Palette) {
+pub fn show(app: &mut IcoConverterApp, ui: &mut egui::Ui) {
+    let p = PALETTE;
     let count = app.selected_count();
     let is_loading = app.loading_label.is_some();
     let has_source = app.source.is_some();
     let can_convert = has_source && !is_loading && count > 0;
-    let noun = if count == 1 {
-        "resolution"
-    } else {
-        "resolutions"
-    };
+    let noun = if count == 1 { "size" } else { "sizes" };
 
     let summary = match app.estimated_ico_bytes() {
         Some(bytes) if bytes > 0 => format!(
@@ -22,26 +19,20 @@ pub fn show(app: &mut IcoConverterApp, ui: &mut egui::Ui, p: &Palette) {
             app.fit_mode.label(),
             utils::human_size(bytes),
         ),
-        _ => format!(
-            "{count} {noun}  ·  {}  ·  Linear Lanczos3",
-            app.fit_mode.label(),
-        ),
+        _ => format!("{count} {noun}  ·  {}", app.fit_mode.label()),
     };
 
     ui.horizontal(|ui| {
-        ui.spacing_mut().item_spacing.x = 8.0;
-        let (icon_rect, _) = ui.allocate_exact_size(egui::vec2(16.0, 16.0), egui::Sense::hover());
-        icons::layers(ui.painter(), icon_rect, p.muted);
-        ui.label(theme::txt(summary, 11.5, Weight::Regular, p.muted));
+        ui.label(theme::txt(summary, 11.0, Weight::Regular, p.muted));
         ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
             ui.label(theme::txt("Ctrl + Enter", 10.5, Weight::Regular, p.subtle));
         });
     });
 
-    ui.add_space(8.0);
+    ui.add_space(6.0);
 
     let (rect, resp) =
-        ui.allocate_exact_size(egui::vec2(ui.available_width(), 46.0), egui::Sense::click());
+        ui.allocate_exact_size(egui::vec2(ui.available_width(), 42.0), egui::Sense::click());
     let hovered = resp.hovered() && can_convert;
     let fill = if !can_convert {
         p.border_strong
@@ -63,15 +54,15 @@ pub fn show(app: &mut IcoConverterApp, ui: &mut egui::Ui, p: &Palette) {
     };
 
     let painter = ui.painter();
-    painter.rect_filled(rect, 10.0, fill);
+    painter.rect_filled(rect, 9.0, fill);
 
     let galley = painter.layout_no_wrap(
         label.to_owned(),
-        theme::font(14.0, Weight::SemiBold),
+        theme::font(13.5, Weight::SemiBold),
         foreground,
     );
-    let icon_side = 18.0;
-    let gap = 9.0;
+    let icon_side = 16.0;
+    let gap = 8.0;
     let group_width = icon_side + gap + galley.size().x;
     let start_x = rect.center().x - group_width * 0.5;
 

@@ -1,7 +1,7 @@
 //! Application state, background preparation pipeline and user actions.
 
 use crate::converter::{self, FitMode, PreparedModeSet, PreparedSource};
-use crate::theme::{self, Palette};
+use crate::theme::{self, PALETTE};
 use crate::utils;
 use crate::widgets;
 use std::path::{Path, PathBuf};
@@ -70,7 +70,6 @@ pub struct IcoConverterApp {
     pub checker: egui::TextureHandle,
     pub selected_sizes: [bool; converter::AVAILABLE_SIZES.len()],
     pub fit_mode: FitMode,
-    pub dark_mode: bool,
     pub status: Option<Status>,
     pub show_about: bool,
     pub loading_label: Option<String>,
@@ -79,14 +78,14 @@ pub struct IcoConverterApp {
     load_rx: Receiver<LoadMessage>,
 }
 
-fn checker_texture(ctx: &egui::Context, p: &Palette) -> egui::TextureHandle {
+fn checker_texture(ctx: &egui::Context) -> egui::TextureHandle {
     let mut image = egui::ColorImage::new([16, 16], egui::Color32::TRANSPARENT);
     for y in 0..16 {
         for x in 0..16 {
             image[(x, y)] = if (x / 8 + y / 8) % 2 == 0 {
-                p.checker_a
+                PALETTE.checker_a
             } else {
-                p.checker_b
+                PALETTE.checker_b
             };
         }
     }
@@ -109,8 +108,8 @@ fn build_preview_textures(
     ctx: &egui::Context,
     mode_set: &PreparedModeSet,
 ) -> Option<PreviewTextures> {
-    let main_frame = mode_set.frame(512).or_else(|| mode_set.frames.last())?;
-    let main = rgba_to_texture(ctx, "icon_preview_512", &main_frame.image);
+    let main_frame = mode_set.frame(256).or_else(|| mode_set.frames.last())?;
+    let main = rgba_to_texture(ctx, "icon_preview", &main_frame.image);
 
     let ruler = std::array::from_fn(|idx| {
         let sz = converter::RULER_SIZES[idx];
@@ -128,9 +127,8 @@ impl IcoConverterApp {
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
         let ctx = cc.egui_ctx.clone();
         theme::install_fonts(&ctx);
-        let palette = Palette::new(false);
-        theme::apply_visuals(&ctx, &palette);
-        let checker = checker_texture(&ctx, &palette);
+        theme::apply_visuals(&ctx);
+        let checker = checker_texture(&ctx);
         let (load_tx, load_rx) = mpsc::channel();
 
         Self {
@@ -139,7 +137,6 @@ impl IcoConverterApp {
             checker,
             selected_sizes: [true; converter::AVAILABLE_SIZES.len()],
             fit_mode: FitMode::Cover,
-            dark_mode: false,
             status: None,
             show_about: false,
             loading_label: None,
@@ -147,10 +144,6 @@ impl IcoConverterApp {
             load_tx,
             load_rx,
         }
-    }
-
-    pub fn palette(&self) -> Palette {
-        Palette::new(self.dark_mode)
     }
 
     pub fn selected_count(&self) -> usize {
@@ -199,14 +192,6 @@ impl IcoConverterApp {
         self.set_status(StatusKind::Error, message, Some(detail.into()));
     }
 
-    pub(crate) fn set_dark_mode(&mut self, ctx: &egui::Context, dark: bool) {
-        self.dark_mode = dark;
-        let p = self.palette();
-        theme::apply_visuals(ctx, &p);
-        self.checker = checker_texture(ctx, &p);
-        ctx.request_repaint();
-    }
-
     pub(crate) fn set_fit_mode(&mut self, ctx: &egui::Context, mode: FitMode) {
         if self.fit_mode == mode {
             return;
@@ -238,7 +223,7 @@ impl IcoConverterApp {
         if !utils::is_supported_extension(path) {
             self.set_error(
                 "Unsupported file type",
-                "Choose a PNG, JPG, WEBP, BMP, GIF, TIFF, ICO, TGA or QOI image.",
+                "Choose a PNG, JPG, WEBP, BMP, GIF, TIFF or ICO image.",
             );
             return;
         }
@@ -345,7 +330,6 @@ impl IcoConverterApp {
                     let mut mode_cache: [Option<Arc<PreparedModeSet>>; 3] = [None, None, None];
                     mode_cache[payload.initial_mode.index()] = Some(payload.initial_set);
 
-                    // If the user switched FitMode while the image was decoding, render that too.
                     let active_idx = self.fit_mode.index();
                     if mode_cache[active_idx].is_none() {
                         mode_cache[active_idx] =
@@ -398,8 +382,6 @@ impl IcoConverterApp {
         }
 
         let fit_mode = self.fit_mode;
-
-        // Ensure active mode cache is populated and grab an Arc handle so no self borrow lingers.
         let (suggested, mode_set) = {
             let Some(src) = self.source.as_mut() else {
                 self.set_error("No image selected", "Add a source image first.");
@@ -428,11 +410,7 @@ impl IcoConverterApp {
             Ok(written_bytes) => {
                 let elapsed = started.elapsed();
                 let count = sizes.len();
-                let noun = if count == 1 {
-                    "resolution"
-                } else {
-                    "resolutions"
-                };
+                let noun = if count == 1 { "size" } else { "sizes" };
                 let detail = format!(
                     "{}  ·  {}  ·  {}",
                     utils::short_path(&save_path),
@@ -441,7 +419,7 @@ impl IcoConverterApp {
                 );
                 self.set_status(
                     StatusKind::Success,
-                    &format!("Icon saved with {count} {noun}"),
+                    &format!("Saved .ico ({count} {noun})"),
                     Some(detail),
                 );
             }
@@ -498,78 +476,44 @@ impl eframe::App for IcoConverterApp {
             self.handle_file_pick(ctx);
         }
 
-        let mut p = self.palette();
-
         let header_frame = egui::Frame::none()
-            .fill(p.surface)
-            .inner_margin(egui::Margin::symmetric(20.0, 14.0))
-            .shadow(egui::Shadow {
-                offset: egui::vec2(0.0, 4.0),
-                blur: 12.0,
-                spread: 0.0,
-                color: p.shadow,
-            });
+            .fill(PALETTE.surface)
+            .inner_margin(egui::Margin::symmetric(18.0, 12.0))
+            .stroke(egui::Stroke::new(1.0_f32, PALETTE.border));
         egui::TopBottomPanel::top("app_header")
             .frame(header_frame)
+            .show_separator_line(false)
             .show(ctx, |ui| {
-                widgets::header::show(self, ui, ctx, &p);
+                widgets::header::show(self, ui);
             });
-
-        p = self.palette();
 
         let footer_frame = egui::Frame::none()
-            .fill(p.surface)
-            .inner_margin(egui::Margin::symmetric(20.0, 14.0))
-            .shadow(egui::Shadow {
-                offset: egui::vec2(0.0, -4.0),
-                blur: 12.0,
-                spread: 0.0,
-                color: p.shadow,
-            });
+            .fill(PALETTE.surface)
+            .inner_margin(egui::Margin::symmetric(18.0, 12.0))
+            .stroke(egui::Stroke::new(1.0_f32, PALETTE.border));
         egui::TopBottomPanel::bottom("app_footer")
             .frame(footer_frame)
+            .show_separator_line(false)
             .show(ctx, |ui| {
-                widgets::status::show(self, ui, &p);
-                widgets::footer::show(self, ui, &p);
+                widgets::status::show(self, ui);
+                widgets::footer::show(self, ui);
             });
 
         let content_frame = egui::Frame::none()
-            .fill(p.bg)
-            .inner_margin(egui::Margin::symmetric(20.0, 16.0));
+            .fill(PALETTE.bg)
+            .inner_margin(egui::Margin::symmetric(18.0, 14.0));
         egui::CentralPanel::default()
             .frame(content_frame)
             .show(ctx, |ui| {
-                ui.spacing_mut().item_spacing = egui::vec2(10.0, 14.0);
+                ui.spacing_mut().item_spacing = egui::vec2(8.0, 12.0);
                 egui::ScrollArea::vertical().show(ui, |ui| {
-                    let source_trailing = if self.loading_label.is_some() {
-                        Some("Preparing…".to_owned())
-                    } else {
-                        self.source.as_ref().map(|src| {
-                            format!("Ready · {}", utils::format_duration(src.prep_duration))
-                        })
-                    };
-                    widgets::section::show(ui, &p, "01", "Source image", source_trailing);
-                    widgets::drop_zone::show(self, ui, ctx, is_dragging, &p);
-
-                    ui.add_space(6.0);
-                    widgets::section::show(
-                        ui,
-                        &p,
-                        "02",
-                        "Icon sizes",
-                        Some(format!(
-                            "{} of {} selected",
-                            self.selected_count(),
-                            converter::AVAILABLE_SIZES.len()
-                        )),
-                    );
-                    widgets::sizes::show(self, ui, ctx, &p);
-                    ui.add_space(4.0);
+                    widgets::drop_zone::show(self, ui, ctx, is_dragging);
+                    widgets::sizes::show(self, ui, ctx);
                 });
             });
 
         if self.show_about {
-            widgets::about::show(self, ctx, &p);
+            widgets::about::show(self, ctx);
         }
     }
 }

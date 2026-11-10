@@ -1,41 +1,41 @@
-//! Resolution picker (16 × 16 through 512 × 512) and aspect-ratio handling.
-//!
-//! Operates on a stack-allocated `[bool; 8]` snapshot so nested `Ui` closures
-//! never hold mutable borrows of `IcoConverterApp` or allocate on the heap.
+//! Minimal resolution picker (`16 × 16` through `512 × 512`) and framing control.
 
 use crate::app::IcoConverterApp;
 use crate::converter::{self, FitMode};
 use crate::icons;
-use crate::theme::{self, Palette, Weight};
+use crate::theme::{self, Weight, PALETTE};
 
 const COLUMNS: usize = 4;
 
-pub fn show(app: &mut IcoConverterApp, ui: &mut egui::Ui, ctx: &egui::Context, p: &Palette) {
+pub fn show(app: &mut IcoConverterApp, ui: &mut egui::Ui, ctx: &egui::Context) {
+    let p = PALETTE;
     let mut selected = app.selected_sizes;
     let current_mode = app.fit_mode;
     let mut next_mode = None;
 
-    theme::card(p).show(ui, |ui| {
+    theme::card().show(ui, |ui| {
         ui.spacing_mut().item_spacing = egui::vec2(8.0, 8.0);
 
-        // ---- Helper actions --------------------------------------------
+        let selected_count = selected.iter().filter(|&&on| on).count();
         let (clear_clicked, all_clicked) = ui
             .horizontal(|ui| {
+                ui.label(theme::txt("Resolutions", 12.5, Weight::SemiBold, p.text));
                 ui.label(theme::txt(
-                    "Choose the resolutions to embed",
-                    11.5,
+                    format!("{selected_count} / {}", converter::AVAILABLE_SIZES.len()),
+                    11.0,
                     Weight::Regular,
                     p.muted,
                 ));
                 ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                    ui.spacing_mut().item_spacing.x = 12.0;
-                    let clear = ui.add(theme::text_button("Clear", p)).clicked();
-                    let all = ui.add(theme::text_button("Select all", p)).clicked();
+                    ui.spacing_mut().item_spacing.x = 10.0;
+                    let clear = ui.add(theme::text_button("Clear")).clicked();
+                    let all = ui.add(theme::text_button("Select all")).clicked();
                     (clear, all)
                 })
                 .inner
             })
             .inner;
+
         if clear_clicked {
             selected = [false; converter::AVAILABLE_SIZES.len()];
         }
@@ -43,9 +43,8 @@ pub fn show(app: &mut IcoConverterApp, ui: &mut egui::Ui, ctx: &egui::Context, p
             selected = [true; converter::AVAILABLE_SIZES.len()];
         }
 
-        // ---- 2 × 4 Resolution chips (16 ..= 512) -----------------------
         let width = ui.available_width();
-        let gap = 8.0;
+        let gap = 7.0;
         let chip_width = (width - gap * (COLUMNS - 1) as f32) / COLUMNS as f32;
 
         for (row_idx, row) in converter::AVAILABLE_SIZES.chunks(COLUMNS).enumerate() {
@@ -57,7 +56,7 @@ pub fn show(app: &mut IcoConverterApp, ui: &mut egui::Ui, ctx: &egui::Context, p
                     for (col_idx, &size) in row.iter().enumerate() {
                         let slot_idx = base_idx + col_idx;
                         let (rect, resp) = ui.allocate_exact_size(
-                            egui::vec2(chip_width, 40.0),
+                            egui::vec2(chip_width, 35.0),
                             egui::Sense::click(),
                         );
                         let is_selected = selected[slot_idx];
@@ -78,16 +77,16 @@ pub fn show(app: &mut IcoConverterApp, ui: &mut egui::Ui, ctx: &egui::Context, p
                         } else {
                             p.border
                         };
-                        painter.rect_filled(rect, 9.0, fill);
+                        painter.rect_filled(rect, 8.0, fill);
                         painter.rect_stroke(
                             rect,
-                            9.0,
-                            egui::Stroke::new(if is_selected { 1.5_f32 } else { 1.0_f32 }, border),
+                            8.0,
+                            egui::Stroke::new(if is_selected { 1.4_f32 } else { 1.0_f32 }, border),
                         );
 
                         let text_color = if is_selected { p.accent } else { p.text };
                         let center = if is_selected {
-                            rect.center() - egui::vec2(7.0, 0.0)
+                            rect.center() - egui::vec2(6.0, 0.0)
                         } else {
                             rect.center()
                         };
@@ -95,16 +94,16 @@ pub fn show(app: &mut IcoConverterApp, ui: &mut egui::Ui, ctx: &egui::Context, p
                             center,
                             egui::Align2::CENTER_CENTER,
                             format!("{size} × {size}"),
-                            theme::font(12.0, Weight::SemiBold),
+                            theme::font(11.5, Weight::SemiBold),
                             text_color,
                         );
 
                         if is_selected {
-                            let dot = egui::pos2(rect.right() - 13.0, rect.center().y);
-                            painter.circle_filled(dot, 7.0, p.accent);
+                            let dot = egui::pos2(rect.right() - 12.0, rect.center().y);
+                            painter.circle_filled(dot, 6.5, p.accent);
                             icons::check(
                                 painter,
-                                egui::Rect::from_center_size(dot, egui::vec2(9.0, 9.0)),
+                                egui::Rect::from_center_size(dot, egui::vec2(8.5, 8.5)),
                                 p.on_accent,
                             );
                         }
@@ -121,25 +120,20 @@ pub fn show(app: &mut IcoConverterApp, ui: &mut egui::Ui, ctx: &egui::Context, p
             }
         }
 
-        // ---- Aspect ratio / framing ------------------------------------
-        ui.add_space(4.0);
+        ui.add_space(2.0);
         ui.horizontal(|ui| {
-            ui.spacing_mut().item_spacing.x = 8.0;
-            let (icon_rect, _) =
-                ui.allocate_exact_size(egui::vec2(18.0, 18.0), egui::Sense::hover());
-            icons::layers(ui.painter(), icon_rect, p.muted);
             ui.label(theme::txt("Framing", 12.0, Weight::SemiBold, p.text));
             ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                 ui.label(theme::txt(
                     current_mode.hint(),
-                    11.0,
+                    10.5,
                     Weight::Regular,
                     p.muted,
                 ));
             });
         });
 
-        next_mode = fit_control(ui, p, current_mode);
+        next_mode = fit_control(ui, current_mode);
     });
 
     app.selected_sizes = selected;
@@ -148,21 +142,22 @@ pub fn show(app: &mut IcoConverterApp, ui: &mut egui::Ui, ctx: &egui::Context, p
     }
 }
 
-fn fit_control(ui: &mut egui::Ui, p: &Palette, current: FitMode) -> Option<FitMode> {
+fn fit_control(ui: &mut egui::Ui, current: FitMode) -> Option<FitMode> {
+    let p = PALETTE;
     let width = ui.available_width();
-    let (outer, _) = ui.allocate_exact_size(egui::vec2(width, 38.0), egui::Sense::hover());
+    let (outer, _) = ui.allocate_exact_size(egui::vec2(width, 34.0), egui::Sense::hover());
     let painter = ui.painter();
-    painter.rect_filled(outer, 10.0, p.surface_alt);
-    painter.rect_stroke(outer, 10.0, egui::Stroke::new(1.0_f32, p.border));
+    painter.rect_filled(outer, 8.0, p.surface_alt);
+    painter.rect_stroke(outer, 8.0, egui::Stroke::new(1.0_f32, p.border));
 
     let count = FitMode::ALL.len() as f32;
-    let seg_width = (outer.width() - 8.0) / count;
+    let seg_width = (outer.width() - 6.0) / count;
 
     let mut chosen = None;
     for (index, &mode) in FitMode::ALL.iter().enumerate() {
         let rect = egui::Rect::from_min_size(
-            outer.min + egui::vec2(4.0 + index as f32 * seg_width, 4.0),
-            egui::vec2(seg_width, 30.0),
+            outer.min + egui::vec2(3.0 + index as f32 * seg_width, 3.0),
+            egui::vec2(seg_width, 28.0),
         );
         let resp = ui.interact(
             rect,
@@ -172,10 +167,10 @@ fn fit_control(ui: &mut egui::Ui, p: &Palette, current: FitMode) -> Option<FitMo
         let active = current == mode;
 
         if active {
-            painter.rect_filled(rect, 7.0, p.surface);
-            painter.rect_stroke(rect, 7.0, egui::Stroke::new(1.0_f32, p.border_strong));
+            painter.rect_filled(rect, 6.0, p.surface);
+            painter.rect_stroke(rect, 6.0, egui::Stroke::new(1.0_f32, p.border_strong));
         } else if resp.hovered() {
-            painter.rect_filled(rect, 7.0, p.surface_hover);
+            painter.rect_filled(rect, 6.0, p.surface_hover);
         }
 
         let weight = if active {
@@ -188,7 +183,7 @@ fn fit_control(ui: &mut egui::Ui, p: &Palette, current: FitMode) -> Option<FitMo
             rect.center(),
             egui::Align2::CENTER_CENTER,
             mode.label(),
-            theme::font(12.0, weight),
+            theme::font(11.5, weight),
             color,
         );
 
