@@ -68,6 +68,7 @@ pub struct IcoConverterApp {
     pub source: Option<SourceImage>,
     pub previews: Option<PreviewTextures>,
     pub checker: egui::TextureHandle,
+    pub app_icon: egui::TextureHandle,
     pub selected_sizes: [bool; converter::AVAILABLE_SIZES.len()],
     pub fit_mode: FitMode,
     pub status: Option<Status>,
@@ -129,12 +130,17 @@ impl IcoConverterApp {
         theme::install_fonts(&ctx);
         theme::apply_visuals(&ctx);
         let checker = checker_texture(&ctx);
+        let app_icon_image = image::load_from_memory(include_bytes!("../icon.png"))
+            .expect("bundled application icon must be valid")
+            .to_rgba8();
+        let app_icon = rgba_to_texture(&ctx, "app_icon", &app_icon_image);
         let (load_tx, load_rx) = mpsc::channel();
 
         Self {
             source: None,
             previews: None,
             checker,
+            app_icon,
             selected_sizes: [true; converter::AVAILABLE_SIZES.len()],
             fit_mode: FitMode::Cover,
             status: None,
@@ -475,8 +481,8 @@ impl eframe::App for IcoConverterApp {
 
         let header_frame = egui::Frame::NONE
             .fill(PALETTE.surface)
-            .inner_margin(egui::Margin::symmetric(16, 10))
-            .stroke(egui::Stroke::new(1.0_f32, PALETTE.border));
+            .inner_margin(egui::Margin::symmetric(20, 12))
+            .shadow(theme::CONTROL_SHADOW);
         egui::TopBottomPanel::top("app_header")
             .frame(header_frame)
             .show_separator_line(false)
@@ -486,8 +492,8 @@ impl eframe::App for IcoConverterApp {
 
         let footer_frame = egui::Frame::NONE
             .fill(PALETTE.surface)
-            .inner_margin(egui::Margin::symmetric(16, 10))
-            .stroke(egui::Stroke::new(1.0_f32, PALETTE.border));
+            .inner_margin(egui::Margin::symmetric(20, 12))
+            .shadow(theme::CONTROL_SHADOW);
         egui::TopBottomPanel::bottom("app_footer")
             .frame(footer_frame)
             .show_separator_line(false)
@@ -498,11 +504,11 @@ impl eframe::App for IcoConverterApp {
 
         let content_frame = egui::Frame::NONE
             .fill(PALETTE.bg)
-            .inner_margin(egui::Margin::symmetric(16, 10));
+            .inner_margin(egui::Margin::symmetric(20, 16));
         egui::CentralPanel::default()
             .frame(content_frame)
             .show(ctx, |ui| {
-                ui.spacing_mut().item_spacing = egui::vec2(8.0, 10.0);
+                ui.spacing_mut().item_spacing = egui::vec2(10.0, 16.0);
                 egui::ScrollArea::vertical().show(ui, |ui| {
                     widgets::drop_zone::show(self, ui, ctx, is_dragging);
                     widgets::sizes::show(self, ui, ctx);

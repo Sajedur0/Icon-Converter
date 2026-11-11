@@ -81,7 +81,8 @@ fn empty(app: &mut IcoConverterApp, ui: &mut egui::Ui, ctx: &egui::Context, is_d
         egui::pos2(rect.center().x, rect.top() + 26.0),
         egui::vec2(32.0, 32.0),
     );
-    theme::paint_box(painter, badge, 8, p.accent_soft, None);
+    theme::paint_shadow(painter, badge, 10, theme::CONTROL_SHADOW);
+    theme::paint_box(painter, badge, 10, p.accent_soft, None);
     icons::upload(painter, badge.shrink(8.0), p.accent);
 
     let headline = if is_dragging {
@@ -102,12 +103,13 @@ fn empty(app: &mut IcoConverterApp, ui: &mut egui::Ui, ctx: &egui::Context, is_d
         egui::pos2(rect.center().x, rect.top() + 84.0),
         egui::vec2(132.0, 26.0),
     );
+    theme::paint_shadow(painter, button, 7, theme::CONTROL_SHADOW);
     theme::paint_box(
         painter,
         button,
-        6,
+        7,
         p.surface,
-        Some(egui::Stroke::new(1.0_f32, p.border_strong)),
+        Some(egui::Stroke::new(1.0_f32, p.border)),
     );
     let btn_galley = painter.layout_no_wrap(
         "Browse · Ctrl+O".to_owned(),

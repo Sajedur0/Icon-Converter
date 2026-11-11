@@ -21,7 +21,7 @@ fn window_icon() -> Option<egui::IconData> {
 }
 
 fn main() -> eframe::Result<()> {
-    let size = [484.0, 520.0];
+    let size = [520.0, 600.0];
     let mut viewport = egui::ViewportBuilder::default()
         .with_app_id("com.sajedur0.ico-converter")
         .with_inner_size(size)
