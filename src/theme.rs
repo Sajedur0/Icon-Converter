@@ -171,6 +171,29 @@ pub fn paint_box(painter: &Painter, rect: Rect, radius: u8, fill: Color32, strok
     }
 }
 
+/// Draws a texture at its natural aspect ratio, centered inside the given bounds.
+pub fn paint_image_contained(
+    painter: &Painter,
+    rect: Rect,
+    texture: &egui::TextureHandle,
+) {
+    let [width, height] = texture.size();
+    if width == 0 || height == 0 {
+        return;
+    }
+    let scale = (rect.width() / width as f32).min(rect.height() / height as f32);
+    let image_rect = Rect::from_center_size(
+        rect.center(),
+        egui::vec2(width as f32 * scale, height as f32 * scale),
+    );
+    painter.image(
+        texture.id(),
+        snap_rect(painter, image_rect),
+        Rect::from_min_max(Pos2::ZERO, egui::pos2(1.0, 1.0)),
+        Color32::WHITE,
+    );
+}
+
 /// Paints a restrained, soft elevation beneath an interactive surface.
 pub fn paint_shadow(
     painter: &Painter,

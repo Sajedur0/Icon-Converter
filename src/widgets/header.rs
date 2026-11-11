@@ -11,11 +11,8 @@ pub fn show(app: &mut IcoConverterApp, ui: &mut egui::Ui) {
         .horizontal(|ui| {
             ui.spacing_mut().item_spacing.x = 10.0;
 
-            let (mark, _) = ui.allocate_exact_size(egui::vec2(34.0, 34.0), egui::Sense::hover());
-            let painter = ui.painter();
-            theme::paint_shadow(painter, mark, 10, theme::CONTROL_SHADOW);
-            theme::paint_box(painter, mark, 10, p.accent, None);
-            icons::image(painter, mark.shrink(8.0), p.on_accent);
+            let (mark, _) = ui.allocate_exact_size(egui::vec2(38.0, 38.0), egui::Sense::hover());
+            theme::paint_image_contained(ui.painter(), mark, &app.app_icon);
 
             ui.label(theme::txt("ICO Converter", 15.0, Weight::SemiBold, p.text));
 

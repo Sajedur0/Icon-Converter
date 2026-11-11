@@ -68,6 +68,7 @@ pub struct IcoConverterApp {
     pub source: Option<SourceImage>,
     pub previews: Option<PreviewTextures>,
     pub checker: egui::TextureHandle,
+    pub app_icon: egui::TextureHandle,
     pub selected_sizes: [bool; converter::AVAILABLE_SIZES.len()],
     pub fit_mode: FitMode,
     pub status: Option<Status>,
@@ -129,12 +130,17 @@ impl IcoConverterApp {
         theme::install_fonts(&ctx);
         theme::apply_visuals(&ctx);
         let checker = checker_texture(&ctx);
+        let app_icon_image = image::load_from_memory(include_bytes!("../icon.png"))
+            .expect("bundled application icon must be valid")
+            .to_rgba8();
+        let app_icon = rgba_to_texture(&ctx, "app_icon", &app_icon_image);
         let (load_tx, load_rx) = mpsc::channel();
 
         Self {
             source: None,
             previews: None,
             checker,
+            app_icon,
             selected_sizes: [true; converter::AVAILABLE_SIZES.len()],
             fit_mode: FitMode::Cover,
             status: None,

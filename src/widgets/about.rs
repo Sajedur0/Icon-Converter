@@ -58,11 +58,8 @@ pub fn show(app: &mut IcoConverterApp, ctx: &egui::Context) {
                     let button_clicked = ui
                         .vertical_centered(|ui| {
                             let (mark, _) = ui
-                                .allocate_exact_size(egui::vec2(48.0, 48.0), egui::Sense::hover());
-                            let painter = ui.painter();
-                            theme::paint_shadow(painter, mark, 14, theme::CONTROL_SHADOW);
-                            theme::paint_box(painter, mark, 14, p.accent, None);
-                            icons::image(painter, mark.shrink(12.0), p.on_accent);
+                                .allocate_exact_size(egui::vec2(54.0, 60.0), egui::Sense::hover());
+                            theme::paint_image_contained(ui.painter(), mark, &app.app_icon);
 
                             ui.add_space(5.0);
                             ui.label(theme::txt("ICO Converter", 17.0, Weight::SemiBold, p.text));
