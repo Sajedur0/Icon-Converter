@@ -13,19 +13,19 @@ pub fn show(app: &mut IcoConverterApp, ctx: &egui::Context) {
         .fixed_pos(ctx.screen_rect().min)
         .show(ctx, |ui| {
             let screen = ctx.screen_rect();
-            let painter = ui.painter();
+            let painter = ui.painter().clone();
             painter.rect_filled(screen, egui::CornerRadius::ZERO, p.overlay);
 
             let backdrop =
                 ui.interact(screen, ui.id().with("about_backdrop"), egui::Sense::click());
 
             let card = theme::snap_rect(
-                painter,
+                &painter,
                 egui::Rect::from_center_size(screen.center(), egui::vec2(344.0, 366.0)),
             );
-            theme::paint_shadow(painter, card, 18, theme::MODAL_SHADOW);
+            theme::paint_shadow(&painter, card, 18, theme::MODAL_SHADOW);
             theme::paint_box(
-                painter,
+                &painter,
                 card,
                 18,
                 p.surface,
@@ -36,7 +36,7 @@ pub fn show(app: &mut IcoConverterApp, ctx: &egui::Context) {
                 egui::pos2(card.center().x, card.top() + 1.0),
                 egui::vec2(52.0, 3.0),
             );
-            theme::paint_box(painter, accent_line, 1, p.accent, None);
+            theme::paint_box(&painter, accent_line, 1, p.accent, None);
 
             let close_clicked = ui
                 .scope_builder(egui::UiBuilder::new().max_rect(card.shrink(20.0)), |ui| {
@@ -99,10 +99,10 @@ pub fn show(app: &mut IcoConverterApp, ctx: &egui::Context) {
                             let (rect, resp) = ui
                                 .allocate_exact_size(egui::vec2(width, 34.0), egui::Sense::click());
                             let fill = if resp.hovered() { p.accent_hover } else { p.accent };
-                            theme::paint_shadow(painter, rect, 9, theme::CONTROL_SHADOW);
-                            theme::paint_box(painter, rect, 9, fill, None);
+                            theme::paint_shadow(&painter, rect, 9, theme::CONTROL_SHADOW);
+                            theme::paint_box(&painter, rect, 9, fill, None);
                             theme::paint_text(
-                                painter,
+                                &painter,
                                 rect.center(),
                                 egui::Align2::CENTER_CENTER,
                                 "Done",
