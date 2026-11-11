@@ -29,21 +29,6 @@ fn scaled_radius(rect: Rect, r: f32) -> CornerRadius {
     CornerRadius::same((r * scale(rect)).round().clamp(1.0, 32.0) as u8)
 }
 
-pub fn image(painter: &Painter, rect: Rect, color: Color32) {
-    let s = pen(rect, color, 1.8);
-    painter.rect_stroke(
-        box_rect(rect, 3.0, 4.0, 21.0, 20.0),
-        scaled_radius(rect, 3.0),
-        s,
-        StrokeKind::Inside,
-    );
-    painter.circle_filled(at(rect, 8.5, 9.5), 1.6 * scale(rect), color);
-    ln(painter, rect, (3.8, 17.0), (9.0, 11.5), s);
-    ln(painter, rect, (9.0, 11.5), (12.5, 15.0), s);
-    ln(painter, rect, (12.5, 15.0), (15.8, 11.8), s);
-    ln(painter, rect, (15.8, 11.8), (20.2, 17.0), s);
-}
-
 pub fn upload(painter: &Painter, rect: Rect, color: Color32) {
     let s = pen(rect, color, 1.8);
     ln(painter, rect, (12.0, 15.5), (12.0, 3.5), s);
