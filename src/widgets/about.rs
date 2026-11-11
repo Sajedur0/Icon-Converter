@@ -74,7 +74,7 @@ pub fn show(app: &mut IcoConverterApp, ctx: &egui::Context) {
                                     info_row(ui, "Author", "Sajedur Rahman Roni");
                                     info_row(ui, "Output", "16–512 px · 32-bit ICO");
                                     info_row(ui, "Engine", "Linear-Light Lanczos3");
-                                    info_row(ui, "License", "MIT");
+                                    info_row(ui, "License", "Apache-2.0");
                                 });
 
                             ui.add_space(6.0);

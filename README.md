@@ -9,7 +9,7 @@
 ![Rust](https://img.shields.io/badge/Rust-1.75%2B-dea584?style=flat-square&logo=rust&logoColor=white)
 ![egui](https://img.shields.io/badge/egui-0.28-2563eb?style=flat-square)
 ![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20macOS-0078d6?style=flat-square)
-![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
+![License](https://img.shields.io/badge/License-Apache--2.0-green?style=flat-square)
 
 </div>
 
@@ -74,4 +74,4 @@ cargo build --release     # minimal stripped binary in target/release/
 
 ## 📄 License
 
-MIT · Bundled Inter font subset under [SIL OFL 1.1](assets/fonts/OFL-LICENSE.txt).
+Apache-2.0 · Bundled Inter font subset under [SIL OFL 1.1](assets/fonts/OFL-LICENSE.txt).

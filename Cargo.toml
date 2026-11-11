@@ -3,7 +3,7 @@ name = "ico_converter"
 version = "0.1.0"
 edition = "2021"
 description = "Minimal, lightweight desktop app for converting images into multi-resolution Windows .ico files"
-license = "MIT"
+license = "Apache-2.0"
 
 [dependencies]
 eframe = { version = "0.32", default-features = false, features = ["glow", "x11", "wayland"] }
