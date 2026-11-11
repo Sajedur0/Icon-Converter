@@ -6,8 +6,27 @@ use egui::{
 };
 use std::sync::Arc;
 
-pub const RADIUS_CARD: u8 = 10;
-pub const RADIUS_CONTROL: u8 = 7;
+pub const RADIUS_CARD: u8 = 14;
+pub const RADIUS_CONTROL: u8 = 9;
+
+pub const CARD_SHADOW: egui::Shadow = egui::Shadow {
+    offset: [0, 4],
+    blur: 18,
+    spread: 0,
+    color: Color32::from_black_alpha(12),
+};
+pub const CONTROL_SHADOW: egui::Shadow = egui::Shadow {
+    offset: [0, 2],
+    blur: 6,
+    spread: 0,
+    color: Color32::from_black_alpha(14),
+};
+pub const MODAL_SHADOW: egui::Shadow = egui::Shadow {
+    offset: [0, 12],
+    blur: 32,
+    spread: 2,
+    color: Color32::from_black_alpha(36),
+};
 
 const FONT_REGULAR: &str = "Inter-Regular";
 const FONT_SEMI: &str = "Inter-SemiBold";
@@ -44,26 +63,26 @@ pub struct Palette {
 }
 
 pub const PALETTE: Palette = Palette {
-    bg: Color32::from_rgb(246, 248, 252),
+    bg: Color32::from_rgb(244, 246, 250),
     surface: Color32::WHITE,
-    surface_alt: Color32::from_rgb(241, 245, 249),
-    surface_hover: Color32::from_rgb(232, 238, 247),
-    border: Color32::from_rgb(220, 228, 238),
-    border_strong: Color32::from_rgb(194, 206, 222),
-    text: Color32::from_rgb(15, 23, 42),
-    muted: Color32::from_rgb(65, 78, 98),
-    subtle: Color32::from_rgb(94, 109, 130),
-    accent: Color32::from_rgb(37, 99, 235),
-    accent_hover: Color32::from_rgb(29, 78, 216),
-    accent_soft: Color32::from_rgb(232, 240, 254),
+    surface_alt: Color32::from_rgb(248, 249, 252),
+    surface_hover: Color32::from_rgb(239, 242, 248),
+    border: Color32::from_rgb(228, 232, 240),
+    border_strong: Color32::from_rgb(203, 210, 222),
+    text: Color32::from_rgb(24, 32, 48),
+    muted: Color32::from_rgb(91, 102, 122),
+    subtle: Color32::from_rgb(126, 136, 154),
+    accent: Color32::from_rgb(79, 70, 229),
+    accent_hover: Color32::from_rgb(67, 56, 202),
+    accent_soft: Color32::from_rgb(238, 238, 253),
     on_accent: Color32::WHITE,
-    success: Color32::from_rgb(5, 115, 78),
-    success_soft: Color32::from_rgb(232, 248, 241),
-    danger: Color32::from_rgb(185, 28, 28),
-    danger_soft: Color32::from_rgb(254, 236, 236),
-    overlay: Color32::from_black_alpha(104),
+    success: Color32::from_rgb(5, 122, 85),
+    success_soft: Color32::from_rgb(234, 248, 242),
+    danger: Color32::from_rgb(190, 45, 55),
+    danger_soft: Color32::from_rgb(254, 240, 241),
+    overlay: Color32::from_black_alpha(88),
     checker_a: Color32::WHITE,
-    checker_b: Color32::from_rgb(228, 233, 242),
+    checker_b: Color32::from_rgb(235, 238, 244),
 };
 
 /// Installs subsetted Inter Regular & SemiBold (~46 KB total).
@@ -152,6 +171,16 @@ pub fn paint_box(painter: &Painter, rect: Rect, radius: u8, fill: Color32, strok
     }
 }
 
+/// Paints a restrained, soft elevation beneath an interactive surface.
+pub fn paint_shadow(
+    painter: &Painter,
+    rect: Rect,
+    radius: u8,
+    shadow: egui::Shadow,
+) {
+    painter.add(shadow.as_shape(snap_rect(painter, rect), CornerRadius::same(radius)));
+}
+
 /// Applies crisp light-mode visuals and linear glyph coverage (eliminating dark-mode gamma halo).
 pub fn apply_visuals(ctx: &egui::Context) {
     ctx.set_theme(egui::Theme::Light);
@@ -168,8 +197,8 @@ pub fn apply_visuals(ctx: &egui::Context) {
     v.window_fill = p.surface;
     v.window_stroke = Stroke::new(1.0_f32, p.border);
     v.window_corner_radius = CornerRadius::same(RADIUS_CARD);
-    v.window_shadow = egui::Shadow::NONE;
-    v.popup_shadow = egui::Shadow::NONE;
+    v.window_shadow = MODAL_SHADOW;
+    v.popup_shadow = CARD_SHADOW;
     v.extreme_bg_color = p.surface_alt;
     v.faint_bg_color = p.surface_alt;
     v.override_text_color = Some(p.text);
@@ -207,13 +236,14 @@ pub fn apply_visuals(ctx: &egui::Context) {
     });
 }
 
-/// Clean flat minimal card with a crisp 1px border.
+/// Minimal elevated surface with a hairline border and soft, neutral shadow.
 pub fn card() -> egui::Frame {
     egui::Frame::NONE
         .fill(PALETTE.surface)
         .corner_radius(CornerRadius::same(RADIUS_CARD))
         .stroke(Stroke::new(1.0_f32, PALETTE.border))
-        .inner_margin(Margin::same(12))
+        .shadow(CARD_SHADOW)
+        .inner_margin(Margin::same(16))
 }
 
 /// Compact outline button for secondary actions.

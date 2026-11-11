@@ -23,10 +23,11 @@ pub fn show(app: &mut IcoConverterApp, ctx: &egui::Context) {
                 painter,
                 egui::Rect::from_center_size(screen.center(), egui::vec2(320.0, 314.0)),
             );
+            theme::paint_shadow(painter, card, 14, theme::MODAL_SHADOW);
             theme::paint_box(
                 painter,
                 card,
-                12,
+                14,
                 p.surface,
                 Some(egui::Stroke::new(1.0_f32, p.border)),
             );
@@ -49,6 +50,7 @@ pub fn show(app: &mut IcoConverterApp, ctx: &egui::Context) {
                             let (mark, _) = ui
                                 .allocate_exact_size(egui::vec2(38.0, 38.0), egui::Sense::hover());
                             let painter = ui.painter();
+                            theme::paint_shadow(painter, mark, 10, theme::CONTROL_SHADOW);
                             theme::paint_box(painter, mark, 10, p.accent, None);
                             icons::image(painter, mark.shrink(8.5), p.on_accent);
 

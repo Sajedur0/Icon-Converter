@@ -475,8 +475,8 @@ impl eframe::App for IcoConverterApp {
 
         let header_frame = egui::Frame::NONE
             .fill(PALETTE.surface)
-            .inner_margin(egui::Margin::symmetric(16, 10))
-            .stroke(egui::Stroke::new(1.0_f32, PALETTE.border));
+            .inner_margin(egui::Margin::symmetric(20, 12))
+            .shadow(theme::CONTROL_SHADOW);
         egui::TopBottomPanel::top("app_header")
             .frame(header_frame)
             .show_separator_line(false)
@@ -486,8 +486,8 @@ impl eframe::App for IcoConverterApp {
 
         let footer_frame = egui::Frame::NONE
             .fill(PALETTE.surface)
-            .inner_margin(egui::Margin::symmetric(16, 10))
-            .stroke(egui::Stroke::new(1.0_f32, PALETTE.border));
+            .inner_margin(egui::Margin::symmetric(20, 12))
+            .shadow(theme::CONTROL_SHADOW);
         egui::TopBottomPanel::bottom("app_footer")
             .frame(footer_frame)
             .show_separator_line(false)
@@ -498,11 +498,11 @@ impl eframe::App for IcoConverterApp {
 
         let content_frame = egui::Frame::NONE
             .fill(PALETTE.bg)
-            .inner_margin(egui::Margin::symmetric(16, 10));
+            .inner_margin(egui::Margin::symmetric(20, 16));
         egui::CentralPanel::default()
             .frame(content_frame)
             .show(ctx, |ui| {
-                ui.spacing_mut().item_spacing = egui::vec2(8.0, 10.0);
+                ui.spacing_mut().item_spacing = egui::vec2(10.0, 16.0);
                 egui::ScrollArea::vertical().show(ui, |ui| {
                     widgets::drop_zone::show(self, ui, ctx, is_dragging);
                     widgets::sizes::show(self, ui, ctx);

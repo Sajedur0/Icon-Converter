@@ -17,7 +17,7 @@
 
 ## ✨ Highlights
 
-- ☀️ **Clean, minimal Light-only UI** — compact fixed-size utility window (`476 × 512`, maximize disabled) with refined micro-typography and flat bordered cards.
+- ☀️ **Clean, minimal Light-only UI** — compact fixed-size utility window (`520 × 600`, maximize disabled) with refined micro-typography and softly elevated cards.
 - 🪶 **Tiny binary & asset footprint** — `egui`/`eframe` default fonts and accessibility bloat disabled, `image` trimmed to essential codecs only, `ico` dependency removed, full LTO + `opt-level = "s"` + symbol stripping, and subsetted Inter fonts (~46 KB total).
 - 🖼️ **Pixel-accurate live preview** — framed square transparency preview plus live 16 / 24 / 32 px actual-pixel mini icons.
 - 📏 **Canvas Fit modes** — *Crop* (center-crop to square), *Contain* (pad with transparency), or *Auto-Trim* (auto-trim alpha bounds).

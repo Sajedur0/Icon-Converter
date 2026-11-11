@@ -11,21 +11,13 @@ pub fn show(app: &mut IcoConverterApp, ui: &mut egui::Ui) {
         .horizontal(|ui| {
             ui.spacing_mut().item_spacing.x = 10.0;
 
-            let (mark, _) = ui.allocate_exact_size(egui::vec2(32.0, 32.0), egui::Sense::hover());
+            let (mark, _) = ui.allocate_exact_size(egui::vec2(34.0, 34.0), egui::Sense::hover());
             let painter = ui.painter();
-            theme::paint_box(painter, mark, 8, p.accent, None);
-            icons::image(painter, mark.shrink(7.0), p.on_accent);
+            theme::paint_shadow(painter, mark, 10, theme::CONTROL_SHADOW);
+            theme::paint_box(painter, mark, 10, p.accent, None);
+            icons::image(painter, mark.shrink(8.0), p.on_accent);
 
-            ui.vertical(|ui| {
-                ui.spacing_mut().item_spacing.y = 1.0;
-                ui.label(theme::txt("ICO Converter", 14.0, Weight::SemiBold, p.text));
-                ui.label(theme::txt(
-                    "Multi-Resolution Icon Studio · 16–512 px",
-                    11.0,
-                    Weight::Regular,
-                    p.muted,
-                ));
-            });
+            ui.label(theme::txt("ICO Converter", 15.0, Weight::SemiBold, p.text));
 
             ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                 let (rect, resp) =

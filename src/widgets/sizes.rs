@@ -80,15 +80,15 @@ pub fn show(app: &mut IcoConverterApp, ui: &mut egui::Ui, ctx: &egui::Context) {
                         } else {
                             p.border
                         };
+                        if is_selected {
+                            theme::paint_shadow(painter, rect, 8, theme::CONTROL_SHADOW);
+                        }
                         theme::paint_box(
                             painter,
                             rect,
-                            7,
+                            8,
                             fill,
-                            Some(egui::Stroke::new(
-                                if is_selected { 1.5_f32 } else { 1.0_f32 },
-                                border,
-                            )),
+                            Some(egui::Stroke::new(1.0_f32, border)),
                         );
 
                         let text_color = if is_selected { p.accent } else { p.text };
@@ -188,12 +188,13 @@ fn fit_control(ui: &mut egui::Ui, current: FitMode) -> Option<FitMode> {
         let active = current == mode;
 
         if active {
+            theme::paint_shadow(painter, rect, 6, theme::CONTROL_SHADOW);
             theme::paint_box(
                 painter,
                 rect,
-                5,
+                6,
                 p.surface,
-                Some(egui::Stroke::new(1.0_f32, p.border_strong)),
+                Some(egui::Stroke::new(1.0_f32, p.border)),
             );
         } else if resp.hovered() {
             theme::paint_box(painter, rect, 5, p.surface_hover, None);

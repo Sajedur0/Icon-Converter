@@ -32,16 +32,16 @@ pub fn show(app: &mut IcoConverterApp, ui: &mut egui::Ui) {
     ui.add_space(6.0);
 
     let width = ui.available_width().floor();
-    let (rect, resp) = ui.allocate_exact_size(egui::vec2(width, 38.0), egui::Sense::click());
+    let (rect, resp) = ui.allocate_exact_size(egui::vec2(width, 40.0), egui::Sense::click());
     let hovered = resp.hovered() && can_convert;
     let fill = if !can_convert {
-        p.border_strong
+        p.surface_hover
     } else if hovered {
         p.accent_hover
     } else {
         p.accent
     };
-    let foreground = if can_convert { p.on_accent } else { p.text };
+    let foreground = if can_convert { p.on_accent } else { p.subtle };
 
     let label = if is_loading {
         "Processing…"
@@ -54,7 +54,10 @@ pub fn show(app: &mut IcoConverterApp, ui: &mut egui::Ui) {
     };
 
     let painter = ui.painter();
-    theme::paint_box(painter, rect, 8, fill, None);
+    if can_convert {
+        theme::paint_shadow(painter, rect, 9, theme::CONTROL_SHADOW);
+    }
+    theme::paint_box(painter, rect, 9, fill, None);
 
     let galley = painter.layout_no_wrap(
         label.to_owned(),
